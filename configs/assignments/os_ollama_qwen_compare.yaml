@@ -1,0 +1,17 @@
+import: definition.yaml
+
+concurrency:
+  task:
+    os-std: 1
+  agent:
+    ollama-qwen-4b: 1
+    ollama-qwen-8b: 1
+
+assignments:
+  - agent:
+      - ollama-qwen-4b
+      - ollama-qwen-8b
+    task:
+      - os-std
+
+output: "outputs/{TIMESTAMP}_os_qwen_ollama"
