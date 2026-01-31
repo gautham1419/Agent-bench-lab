@@ -8,8 +8,7 @@ venv/
 env/
 
 # Ignore folders
-assets/
-outputs/
+assets/ 
 extra/
 import/
 PY/
