@@ -1,8 +1,6 @@
 import enum
 import json
 import requests
-import runtime
-import time
 
 from src.typings import *
 from src.utils import *
@@ -232,15 +230,14 @@ class TaskClient:
                 )
 
             tool_calls = None
-            assistant_content = content
-
+            raw_model_output = content
+            assistant_thought = content  # fallback: if not parseable, store raw as content
             try:
                 obj = json.loads(content)
                 if isinstance(obj, dict) and "name" in obj:
                     name = obj["name"]
                     arguments = obj.get("arguments", {})
                     thought = obj.get("thought", "")
-
                     tool_calls = [
                         {
                             "id": "call_1",
@@ -251,14 +248,19 @@ class TaskClient:
                             },
                         }
                     ]
-                    assistant_content = thought
+                    # Store thought if present; if empty, keep raw JSON so logs don't look blank
+                    assistant_thought = thought if (thought is not None and str(thought).strip() != "") else content
             except Exception:
                 pass
 
-            msg = {"role": "assistant", "content": assistant_content}
+            msg = {"role": "assistant", "content": assistant_thought}
+            msg["raw_model_output"] = raw_model_output
             if tool_calls is not None:
                 msg["tool_calls"] = tool_calls
-
+            # Attach model usage (tokens) if available
+            usage = getattr(agent, "last_usage", None)
+            if usage is not None:
+                msg["usage"] = usage
             # record outgoing assistant message in transcript
             _add_messages([msg])
 

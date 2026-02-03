@@ -210,6 +210,29 @@ class HTTPAgent(AgentClient):
                 pass
             else:
                 resp = resp.json()
+
+                # Save token usage if Ollama provides it (works with /api/chat, stream:false)
+                # prompt_eval_count = prompt tokens, eval_count = generated tokens
+                try:
+                    prompt_tokens = resp.get("prompt_eval_count", None)
+                    completion_tokens = resp.get("eval_count", None)
+
+                    self.last_usage = {
+                        "prompt_tokens": prompt_tokens,
+                        "completion_tokens": completion_tokens,
+                        "total_tokens": (
+                            (prompt_tokens or 0) + (completion_tokens or 0)
+                            if (prompt_tokens is not None or completion_tokens is not None)
+                            else None
+                        ),
+                        # optional timing fields if you want them later
+                        "prompt_eval_duration": resp.get("prompt_eval_duration", None),
+                        "eval_duration": resp.get("eval_duration", None),
+                        "total_duration": resp.get("total_duration", None),
+                    }
+                except Exception:
+                    self.last_usage = None
+
                 return self.return_format.format(response=resp)
             time.sleep(_ + 2)
         raise Exception("Failed.")
