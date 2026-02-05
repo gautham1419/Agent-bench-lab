@@ -1,0 +1,75 @@
+assignments:
+- agent: ollama-qwen-4b
+  task: dbbench-std
+concurrency:
+  agent:
+    ollama-qwen-4b: 1
+  task:
+    dbbench-std: 1
+definition:
+  agent:
+    ollama-qwen-4b:
+      module: src.client.agents.HTTPAgent
+      parameters:
+        body:
+          format: json
+          model: qwen3:4b
+          options:
+            temperature: 0
+          stream: false
+        headers:
+          Content-Type: application/json
+        name: ollama-qwen-4b
+        prompter:
+          args:
+            agent_role: assistant
+          name: role_content_dict
+        return_format: '{response[message][content]}'
+        url: http://localhost:11434/api/chat
+  task:
+    dbbench-std:
+      module: src.client.TaskClient
+      parameters:
+        concurrency: 32
+        controller_address: http://localhost:5020/api
+        data_file: data/dbbench/standard.jsonl
+        env_driver: docker
+        env_options:
+          network_name: dbbench_default
+          state_driver: redis
+          state_options:
+            connection:
+              host: 172.17.0.1
+        max_round: 15
+        name: dbbench-std
+        tools:
+        - function:
+            description: Executes a given SQL statement on the database and returns
+              the result.
+            name: execute_sql
+            parameters:
+              additionalProperties: false
+              properties:
+                query:
+                  description: The SQL query to be executed.
+                  type: string
+              required:
+              - query
+              type: object
+          type: function
+        - function:
+            description: Commits the final answer after all operations are completed.
+            name: commit_final_answer
+            parameters:
+              additionalProperties: false
+              properties:
+                answers:
+                  description: The list of final answers to commit.
+                  items:
+                    type: string
+                  type: array
+              required:
+              - answers
+              type: object
+          type: function
+output: outputs/2026-02-04-02-33-06

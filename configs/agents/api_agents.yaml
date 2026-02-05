@@ -36,3 +36,17 @@ ollama-qwen-8b:
     name: "ollama-qwen-8b"
     body:
       model: "qwen3:8b"
+
+ollama-gemma2-2b:
+  import: "./ollama-qwen-chat.yaml"
+  parameters:
+    name: "ollama-gemma2-2b"
+    body:
+      model: "gemma2:2b"
+
+ollama-gemma2-9b:
+  import: "./ollama-qwen-chat.yaml"
+  parameters:
+    name: "ollama-gemma2-9b"
+    body:
+      model: "gemma2:9b"

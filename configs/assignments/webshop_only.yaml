@@ -1,0 +1,15 @@
+import: definition.yaml
+
+concurrency:
+  task:
+    webshop-std: 1
+  agent:
+    ollama-gemma2-2b: 1
+
+assignments:
+  - agent:
+      - ollama-gemma2-2b
+    task:
+      - webshop-std
+
+output: "outputs/{TIMESTAMP}_webshop_ollama"
