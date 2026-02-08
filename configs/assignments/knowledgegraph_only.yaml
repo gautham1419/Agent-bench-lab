@@ -2,7 +2,7 @@ import: definition.yaml
 
 concurrency:
   task:
-    alfworld-std: 1
+    knowledgegraph-std: 1
   agent:
     ollama-qwen-4b: 1
     ollama-qwen-8b: 1
@@ -16,6 +16,7 @@ assignments:
       - ollama-gemma2-2b
       - ollama-gemma2-9b
     task:
-      - alfworld-std
+      - knowledgegraph-std
 
-output: "outputs/{TIMESTAMP}_alfworld_ollama"
+output: "outputs/{TIMESTAMP}_knowledgegraph_ollama"
+
