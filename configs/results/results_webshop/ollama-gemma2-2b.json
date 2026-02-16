@@ -1,0 +1,14 @@
+{
+  "total_tasks": 500,
+  "runs_completed": 200,
+  "runs_crashed": 0,
+  "successes": 0,
+  "task_success_rate": 0.0,
+  "agent_crash_rate": 0.0,
+  "avg_steps_per_task": 2.33,
+  "avg_total_tokens_per_task": 0.0,
+  "status_breakdown": {
+    "task limit reached": 199,
+    "task error": 1
+  }
+}

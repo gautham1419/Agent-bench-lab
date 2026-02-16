@@ -2,7 +2,7 @@ import: definition.yaml
 
 concurrency:
   task:
-    knowledgegraph-std: 1
+    kg-std: 1
   agent:
     ollama-qwen-4b: 1
     ollama-qwen-8b: 1
@@ -16,7 +16,7 @@ assignments:
       - ollama-gemma2-2b
       - ollama-gemma2-9b
     task:
-      - knowledgegraph-std
+      - kg-std
 
 output: "outputs/{TIMESTAMP}_knowledgegraph_ollama"
 
