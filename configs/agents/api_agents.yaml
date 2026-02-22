@@ -50,3 +50,32 @@ ollama-gemma2-9b:
     name: "ollama-gemma2-9b"
     body:
       model: "gemma2:9b"
+
+
+ollama-qwen3-4b-q4_k_m:
+  import: "./ollama-qwen-chat.yaml"
+  parameters:
+    name: "ollama-qwen3-4b-q4_k_m"
+    body:
+      model: "hf.co/Qwen/Qwen3-4B-GGUF:Q4_K_M"
+
+ollama-qwen3-4b-q8_0:
+  import: "./ollama-qwen-chat.yaml"
+  parameters:
+    name: "ollama-qwen3-4b-q8_0"
+    body:
+      model: "hf.co/Qwen/Qwen3-4B-GGUF:Q8_0"
+
+ollama-qwen3-8b-q4_k_m:
+  import: "./ollama-qwen-chat.yaml"
+  parameters:
+    name: "ollama-qwen3-8b-q4_k_m"
+    body:
+      model: "hf.co/Qwen/Qwen3-8B-GGUF:Q4_K_M"
+
+ollama-qwen3-8b-q8_0:
+  import: "./ollama-qwen-chat.yaml"
+  parameters:
+    name: "ollama-qwen3-8b-q8_0"
+    body:
+      model: "hf.co/Qwen/Qwen3-8B-GGUF:Q8_0"

@@ -19,6 +19,7 @@ from .configs import ConfigLoader
 from .typings import AssignmentConfig, SampleIndex, TaskOutput, TaskClientOutput
 from .utils import ColorMessage
 from .utils import Graph, MaxFlow
+from .utils.monitor import ResourceMonitor
 from time import sleep
 import contextlib
 import sys
@@ -421,5 +422,21 @@ if __name__ == "__main__":
     value = AssignmentConfig.parse_obj(config_)
     value = AssignmentConfig.post_validate(value)
     v = value.dict()
-    with std_out_err_redirect_tqdm() as orig_stdout:
-        Assigner(value, args.retry).start(tqdm_out=orig_stdout)
+    
+    # Initialize and start resource monitor
+    monitor = ResourceMonitor(interval=0.5)
+    monitor.start()
+    
+    try:
+        with std_out_err_redirect_tqdm() as orig_stdout:
+            Assigner(value, args.retry).start(tqdm_out=orig_stdout)
+    finally:
+        monitor.stop()
+        metrics = monitor.summary()
+        
+        # Save metrics to output directory
+        output_dir = value.output  # use existing output path variable
+        os.makedirs(output_dir, exist_ok=True)
+        
+        with open(os.path.join(output_dir, "resource_metrics.json"), "w") as f:
+            json.dump(metrics, f, indent=4)
