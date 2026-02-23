@@ -67,9 +67,24 @@ class ResourceMonitor:
         self.running = False
         self.thread.join()
 
-        # stop CPU energy measurement
-        self.cpu_meter.end()
-        self.cpu_energy_joules = self.cpu_meter.result.pkg[0] / 1_000_000  # µJ → J
+        # stop CPU energy measurement safely
+        try:
+            self.cpu_meter.end()
+
+            if (
+                self.cpu_meter.result is not None and
+                self.cpu_meter.result.pkg is not None and
+                len(self.cpu_meter.result.pkg) > 0
+            ):
+                self.cpu_energy_joules = (
+                    self.cpu_meter.result.pkg[0] / 1_000_000
+                )
+            else:
+                self.cpu_energy_joules = 0
+
+        except Exception as e:
+            print(f"[WARNING] CPU energy measurement failed: {e}")
+            self.cpu_energy_joules = 0
 
         nvmlShutdown()
 

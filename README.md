@@ -16,6 +16,22 @@ DB:
 
  python -m src.assigner --config configs/assignments/dbbench_only.yaml
 
+ALFWORLD:
+
+ docker compose -f extra/docker-compose.yml up redis controller alfworld-std
+
+ python -m src.assigner --config configs/assignments/alfworld_only.yaml
+
+
+WEBSHOP:
+
+ docker compose -f extra/docker-compose.yml up redis controller webshop-std
+
+ python -m src.assigner --config configs/assignments/webshop_only.yaml
+
+
+
+ 
 
 
 
