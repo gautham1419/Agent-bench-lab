@@ -4,14 +4,16 @@ concurrency:
   task:
     os-std: 1
   agent:
-    ollama-qwen3-4b-q4_k_m: 1
-    #ollama-qwen3-4b-q8_0: 1
+    #ollama-qwen3-4b-q4_k_m: 1
+    ollama-qwen3-4b-q8_0: 1
+    #ollama-qwen3-4b-bf16: 1
 
 assignments:
   - agent:
-      - ollama-qwen3-4b-q4_k_m
-      #- ollama-qwen3-4b-q8_0
+      #- ollama-qwen3-4b-q4_k_m
+      - ollama-qwen3-4b-q8_0
+      #- ollama-qwen3-4b-bf16
     task:
       - os-std
 
-output: "outputs/{TIMESTAMP}_ollama_qwen3_4b-q4"
+output: "outputs/{TIMESTAMP}_ollama_qwen3_4b-q8"

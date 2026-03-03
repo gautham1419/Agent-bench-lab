@@ -9,7 +9,6 @@ env/
 
 # Ignore folders
 assets/ 
-extra/
 import/
 PY/
 
