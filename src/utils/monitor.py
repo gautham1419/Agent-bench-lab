@@ -6,8 +6,9 @@ import pyRAPL
 
 
 class ResourceMonitor:
-    def __init__(self, interval=0.5):
+    def __init__(self, interval=0.5, cpu_reset_interval=300):
         self.interval = interval
+        self.cpu_reset_interval = cpu_reset_interval  # seconds
         self.running = False
 
         self.cpu = []
@@ -19,6 +20,8 @@ class ResourceMonitor:
         self.gpu_energy_joules = 0
         self.cpu_energy_joules = 0
 
+        self.last_cpu_reset = None
+
     def start(self):
         # ---------- GPU INIT ----------
         nvmlInit()
@@ -27,18 +30,39 @@ class ResourceMonitor:
         # ---------- CPU PROCESS ----------
         self.process = psutil.Process()
 
-        # ---------- CPU ENERGY (RAPL) ----------
+        # ---------- CPU ENERGY INIT ----------
         pyRAPL.setup()
-        self.cpu_meter = pyRAPL.Measurement('benchmark')
-        self.cpu_meter.begin()
+        self._start_cpu_meter()
 
         # ---------- START THREAD ----------
         self.running = True
         self.thread = threading.Thread(target=self._collect)
         self.thread.start()
 
+    def _start_cpu_meter(self):
+        self.cpu_meter = pyRAPL.Measurement('benchmark')
+        self.cpu_meter.begin()
+        self.last_cpu_reset = time.time()
+
+    def _accumulate_cpu_energy(self):
+        try:
+            self.cpu_meter.end()
+
+            if (
+                self.cpu_meter.result is not None and
+                self.cpu_meter.result.pkg is not None and
+                len(self.cpu_meter.result.pkg) > 0
+            ):
+                delta = self.cpu_meter.result.pkg[0] / 1_000_000
+                self.cpu_energy_joules += delta
+
+        except Exception as e:
+            print(f"[WARNING] CPU chunk measurement failed: {e}")
+
     def _collect(self):
         while self.running:
+            current_time = time.time()
+
             # ----- CPU Util -----
             self.cpu.append(psutil.cpu_percent())
 
@@ -54,11 +78,16 @@ class ResourceMonitor:
             self.gpu_mem.append(mem.used / 1024**2)
 
             # ----- GPU Power (Watts) -----
-            power = nvmlDeviceGetPowerUsage(self.handle) / 1000  # mW → W
+            power = nvmlDeviceGetPowerUsage(self.handle) / 1000
             self.gpu_power.append(power)
 
             # ----- GPU Energy Accumulation -----
             self.gpu_energy_joules += power * self.interval
+
+            # ----- CPU ENERGY CHUNK RESET -----
+            if current_time - self.last_cpu_reset >= self.cpu_reset_interval:
+                self._accumulate_cpu_energy()
+                self._start_cpu_meter()
 
             time.sleep(self.interval)
 
@@ -67,47 +96,28 @@ class ResourceMonitor:
         self.running = False
         self.thread.join()
 
-        # stop CPU energy measurement safely
-        try:
-            self.cpu_meter.end()
-
-            if (
-                self.cpu_meter.result is not None and
-                self.cpu_meter.result.pkg is not None and
-                len(self.cpu_meter.result.pkg) > 0
-            ):
-                self.cpu_energy_joules = (
-                    self.cpu_meter.result.pkg[0] / 1_000_000
-                )
-            else:
-                self.cpu_energy_joules = 0
-
-        except Exception as e:
-            print(f"[WARNING] CPU energy measurement failed: {e}")
-            self.cpu_energy_joules = 0
+        # accumulate final CPU chunk
+        self._accumulate_cpu_energy()
 
         nvmlShutdown()
 
     def summary(self):
         return {
-            "cpu_avg": sum(self.cpu)/len(self.cpu),
-            "cpu_peak": max(self.cpu),
+            "cpu_avg": sum(self.cpu)/len(self.cpu) if self.cpu else 0,
+            "cpu_peak": max(self.cpu) if self.cpu else 0,
 
-            "ram_avg": sum(self.ram)/len(self.ram),
-            "ram_peak": max(self.ram),
+            "ram_avg": sum(self.ram)/len(self.ram) if self.ram else 0,
+            "ram_peak": max(self.ram) if self.ram else 0,
 
-            "gpu_util_avg": sum(self.gpu_util)/len(self.gpu_util),
-            "gpu_util_peak": max(self.gpu_util),
+            "gpu_util_avg": sum(self.gpu_util)/len(self.gpu_util) if self.gpu_util else 0,
+            "gpu_util_peak": max(self.gpu_util) if self.gpu_util else 0,
 
-            "gpu_mem_avg": sum(self.gpu_mem)/len(self.gpu_mem),
-            "gpu_mem_peak": max(self.gpu_mem),
+            "gpu_mem_avg": sum(self.gpu_mem)/len(self.gpu_mem) if self.gpu_mem else 0,
+            "gpu_mem_peak": max(self.gpu_mem) if self.gpu_mem else 0,
 
-            "gpu_power_avg": sum(self.gpu_power)/len(self.gpu_power),
+            "gpu_power_avg": sum(self.gpu_power)/len(self.gpu_power) if self.gpu_power else 0,
 
-            # NEW ENERGY METRICS
             "gpu_energy_joules": self.gpu_energy_joules,
             "cpu_energy_joules": self.cpu_energy_joules,
-
-            # Optional total energy
             "total_energy_joules": self.gpu_energy_joules + self.cpu_energy_joules
         }
