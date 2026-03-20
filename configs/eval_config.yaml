@@ -1,0 +1,13 @@
+outputs_path: new_outputs
+results_path: results
+plots_path: plots
+enhanced_plots_path: enhanced_plots
+
+experiment:
+  runs_to_average: 3
+
+domains:
+  - os
+  - db
+  - ws
+  - alf

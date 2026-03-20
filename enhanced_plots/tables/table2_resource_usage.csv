@@ -1,0 +1,9 @@
+,,cpu_mean,cpu_mean,ram_mean,ram_mean,gpu_util_mean,gpu_util_mean,energy_mean,energy_mean
+,,mean,std,mean,std,mean,std,mean,std
+model,quant,,,,,,,,
+Ministral3,FP16,,,,,,,,
+Ministral3,8-bit,5.02,0.64,376.48,241.11,23.75,8.25,570027.45,362687.13
+Ministral3,4-bit,4.76,0.87,375.64,240.49,16.54,6.55,494553.86,451279.34
+Qwen3,FP16,,,,,,,,
+Qwen3,8-bit,6.26,1.94,304.73,236.89,55.07,24.47,2123827.83,1881508.43
+Qwen3,4-bit,6.1,2.4,305.11,237.85,47.82,25.95,1879334.31,1742021.23

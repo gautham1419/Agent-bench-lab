@@ -1,0 +1,3 @@
+Model,Comparison,Metric,Statistic,P-Value,Significant
+Ministral3,8-bit vs 4-bit,Success Rate,-750599937895085.9,0.0,True
+Qwen3,8-bit vs 4-bit,Success Rate,360287970189632.94,0.0,True

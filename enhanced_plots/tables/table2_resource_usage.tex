@@ -1,0 +1,16 @@
+\begin{tabular}{llrrrrrrrr}
+\toprule
+ &  & \multicolumn{2}{r}{cpu_mean} & \multicolumn{2}{r}{ram_mean} & \multicolumn{2}{r}{gpu_util_mean} & \multicolumn{2}{r}{energy_mean} \\
+ &  & mean & std & mean & std & mean & std & mean & std \\
+model & quant &  &  &  &  &  &  &  &  \\
+\midrule
+\multirow[t]{3}{*}{Ministral3} & FP16 & NaN & NaN & NaN & NaN & NaN & NaN & NaN & NaN \\
+ & 8-bit & 5.020000 & 0.640000 & 376.480000 & 241.110000 & 23.750000 & 8.250000 & 570027.450000 & 362687.130000 \\
+ & 4-bit & 4.760000 & 0.870000 & 375.640000 & 240.490000 & 16.540000 & 6.550000 & 494553.860000 & 451279.340000 \\
+\cline{1-10}
+\multirow[t]{3}{*}{Qwen3} & FP16 & NaN & NaN & NaN & NaN & NaN & NaN & NaN & NaN \\
+ & 8-bit & 6.260000 & 1.940000 & 304.730000 & 236.890000 & 55.070000 & 24.470000 & 2123827.830000 & 1881508.430000 \\
+ & 4-bit & 6.100000 & 2.400000 & 305.110000 & 237.850000 & 47.820000 & 25.950000 & 1879334.310000 & 1742021.230000 \\
+\cline{1-10}
+\bottomrule
+\end{tabular}

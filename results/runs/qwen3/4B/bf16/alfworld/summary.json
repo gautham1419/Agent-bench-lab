@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "model": "qwen3",
+    "size": "4B",
+    "quant": "bf16",
+    "domain": "alfworld",
+    "num_runs": 1,
+    "runs_used": [
+      "run1.json"
+    ]
+  },
+  "metrics": {
+    "success_rate_mean": 0.1559633027522936,
+    "success_rate_std": 0.0,
+    "mean_reward_mean": 0.1559633027522936,
+    "mean_reward_std": 0.0,
+    "failure_rate_mean": 0.0,
+    "failure_rate_std": 0.0,
+    "avg_tool_calls_mean": 14.844036697247706,
+    "avg_tool_calls_std": 0.0,
+    "avg_turns_mean": 14.844036697247706,
+    "avg_turns_std": 0.0,
+    "runs_crashed_mean": 0,
+    "runs_crashed_std": 0,
+    "agent_crash_rate_mean": 0,
+    "agent_crash_rate_std": 0,
+    "tool_format_violation_rate_mean": 0,
+    "tool_format_violation_rate_std": 0,
+    "energy_mean": 4524038.917101984,
+    "energy_std": 0.0,
+    "cpu_mean": 7.747859337211582,
+    "cpu_std": 0.0,
+    "ram_mean": 152.83216950964933,
+    "ram_std": 0.0,
+    "gpu_util_mean": 84.86561213151187,
+    "gpu_util_std": 0.0,
+    "gpu_mem_mean": 13715.202337571083,
+    "gpu_mem_std": 0.0,
+    "gpu_power_mean": 254.67217890058174,
+    "gpu_power_std": 0.0,
+    "total_tasks": 109,
+    "successes": 17,
+    "failures": 92,
+    "errors": 0
+  }
+}

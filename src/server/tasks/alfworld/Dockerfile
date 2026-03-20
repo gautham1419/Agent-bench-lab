@@ -42,7 +42,11 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     echo "torchvision<0.15" >> /usr/src/alfworld/requirements.txt && \
     echo "transformers<4.48.0" >> /usr/src/alfworld/requirements.txt && \
     echo "Werkzeug<3.0" >> /usr/src/alfworld/requirements.txt && \
-    python -m pip install --upgrade pip && \
+    #python -m pip install --upgrade pip && \
+    #python -m pip install \
+    python -m pip install --upgrade pip "setuptools<70.0.0" wheel && \
+    python -m pip install --no-build-isolation visdom && \
+    sed -i '/visdom/d' /usr/src/alfworld/requirements.txt && \
     python -m pip install \
       --extra-index-url https://download.pytorch.org/whl/cpu \
       agentrl-worker \

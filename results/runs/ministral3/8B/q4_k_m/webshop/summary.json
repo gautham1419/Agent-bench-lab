@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "model": "ministral3",
+    "size": "8B",
+    "quant": "q4_k_m",
+    "domain": "webshop",
+    "num_runs": 1,
+    "runs_used": [
+      "run1.json"
+    ]
+  },
+  "metrics": {
+    "success_rate_mean": 0.83,
+    "success_rate_std": 0.0,
+    "mean_reward_mean": 0.5045,
+    "mean_reward_std": 0.0,
+    "failure_rate_mean": 0.0,
+    "failure_rate_std": 0.0,
+    "avg_tool_calls_mean": 4.0,
+    "avg_tool_calls_std": 0.0,
+    "avg_turns_mean": 4.0,
+    "avg_turns_std": 0.0,
+    "runs_crashed_mean": 0,
+    "runs_crashed_std": 0,
+    "agent_crash_rate_mean": 0,
+    "agent_crash_rate_std": 0,
+    "tool_format_violation_rate_mean": 0,
+    "tool_format_violation_rate_std": 0,
+    "energy_mean": 448904.6127000004,
+    "energy_std": 0.0,
+    "cpu_mean": 5.034380334585183,
+    "cpu_std": 0.0,
+    "ram_mean": 150.5766933307016,
+    "ram_std": 0.0,
+    "gpu_util_mean": 23.74667121884602,
+    "gpu_util_std": 0.0,
+    "gpu_mem_mean": 11512.526694264254,
+    "gpu_mem_std": 0.0,
+    "gpu_power_mean": 120.27952492318198,
+    "gpu_power_std": 0.0,
+    "total_tasks": 200,
+    "successes": 166,
+    "failures": 34,
+    "errors": 0
+  }
+}

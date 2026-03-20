@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "model": "ministral3",
+    "size": "3B",
+    "quant": "bf16",
+    "domain": "alfworld",
+    "num_runs": 1,
+    "runs_used": [
+      "run1.json"
+    ]
+  },
+  "metrics": {
+    "success_rate_mean": 0.03669724770642202,
+    "success_rate_std": 0.0,
+    "mean_reward_mean": 0.03669724770642202,
+    "mean_reward_std": 0.0,
+    "failure_rate_mean": 0.0,
+    "failure_rate_std": 0.0,
+    "avg_tool_calls_mean": 7.091743119266055,
+    "avg_tool_calls_std": 0.0,
+    "avg_turns_mean": 7.091743119266055,
+    "avg_turns_std": 0.0,
+    "runs_crashed_mean": 0,
+    "runs_crashed_std": 0,
+    "agent_crash_rate_mean": 0,
+    "agent_crash_rate_std": 0,
+    "tool_format_violation_rate_mean": 0,
+    "tool_format_violation_rate_std": 0,
+    "energy_mean": 227087.1511790001,
+    "energy_std": 0.0,
+    "cpu_mean": 5.026399739583334,
+    "cpu_std": 0.0,
+    "ram_mean": 150.36345799763998,
+    "ram_std": 0.0,
+    "gpu_util_mean": 22.375,
+    "gpu_util_std": 0.0,
+    "gpu_mem_mean": 12390.544921875,
+    "gpu_mem_std": 0.0,
+    "gpu_power_mean": 110.96738671874999,
+    "gpu_power_std": 0.0,
+    "total_tasks": 109,
+    "successes": 4,
+    "failures": 105,
+    "errors": 0
+  }
+}

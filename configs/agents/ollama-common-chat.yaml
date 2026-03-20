@@ -1,0 +1,25 @@
+module: src.client.agents.HTTPAgent
+parameters:
+  url: http://localhost:11434/api/chat 
+  headers:
+    Content-Type: application/json
+    Authorization: 
+  body:
+    stream: false
+    format: json
+    options:
+      temperature: 0
+    system_message: |
+      You are an assistant interacting with a task environment.
+      Your goal is to solve tasks using exactly one tool per turn.
+      Rules:
+      - Always call one of the provided tools; do not respond directly.
+      - If using a tool that requires arguments (e.g., bash_action), always include the required arguments.
+      - If you know the answer, use 'answer_action' instead of any other tool.
+      - Provide answers exactly and precisely. For numbers, return integers.
+      - Do not include any model-specific phrases or bias toward any model.
+  prompter:
+    name: role_content_dict
+    args:
+      agent_role: assistant
+  return_format: "{response[message][content]}"  # path to extract model output
