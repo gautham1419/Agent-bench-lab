@@ -1,7 +1,0 @@
-model,quant,agent_crash_rate_mean,tool_format_violation_rate_mean,runs_crashed_mean
-Ministral3,FP16,,,
-Ministral3,8-bit,0.1119,0.3053,0.875
-Ministral3,4-bit,0.0988,0.2144,1.25
-Qwen3,FP16,,,
-Qwen3,8-bit,0.0,0.0101,0.1667
-Qwen3,4-bit,0.0,0.0141,1.6667

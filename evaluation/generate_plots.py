@@ -92,8 +92,6 @@ def load_tradeoff_metrics(results_path):
 
 def plot_quant_vs_success(df, plots_path):
 
-    df = standardize_labels(df)
-
     fig, ax = plt.subplots(figsize=FIGSIZE)
 
     sns.barplot(
@@ -116,8 +114,6 @@ def plot_quant_vs_success(df, plots_path):
 
 
 def plot_quant_vs_reward(df, plots_path):
-
-    df = standardize_labels(df)
 
     fig, ax = plt.subplots(figsize=FIGSIZE)
 
@@ -142,8 +138,6 @@ def plot_quant_vs_reward(df, plots_path):
 
 def plot_tool_calls(df, plots_path):
 
-    df = standardize_labels(df)
-
     fig, ax = plt.subplots(figsize=FIGSIZE)
 
     sns.barplot(
@@ -166,19 +160,19 @@ def plot_tool_calls(df, plots_path):
 
 
 # ------------------------------------------------
-# RQ2 – Failure Analysis
+# RQ2 – Failure Analysis (UPDATED)
 # ------------------------------------------------
 
 def plot_failure_rates(df, plots_path):
 
-    df = standardize_labels(df)
-
     failure_df = df[
         [
             "quant",
-            "agent_crash_rate_mean",
-            "tool_format_violation_rate_mean",
-            "failure_rate_mean",
+            "agent_failure_rate_mean",
+            "interaction_failure_rate_mean",
+            "timeout_rate_mean",
+            "tool_format_rate_mean",
+            "crash_rate_mean",
         ]
     ]
 
@@ -187,6 +181,15 @@ def plot_failure_rates(df, plots_path):
         var_name="Failure Type",
         value_name="Rate"
     )
+
+    # Clean labels
+    failure_df["Failure Type"] = failure_df["Failure Type"].replace({
+        "agent_failure_rate_mean": "Agent Failure",
+        "interaction_failure_rate_mean": "Interaction Failure",
+        "timeout_rate_mean": "Timeout",
+        "tool_format_rate_mean": "Tool Format",
+        "crash_rate_mean": "Crash"
+    })
 
     fig, ax = plt.subplots(figsize=FIGSIZE)
 
@@ -201,8 +204,8 @@ def plot_failure_rates(df, plots_path):
     )
 
     ax.set_xlabel("Quantization")
-    ax.set_ylabel("Failure Rate")
-    ax.set_title("Failure Modes Across Quantization")
+    ax.set_ylabel("Rate")
+    ax.set_title("Failure Breakdown Across Quantization")
 
     place_legend(ax, "Failure Type")
 
@@ -211,19 +214,18 @@ def plot_failure_rates(df, plots_path):
 
 def plot_failure_heatmap(df, plots_path):
 
-    df = standardize_labels(df)
-
     heatmap_data = df.pivot_table(
         values=[
-            "agent_crash_rate_mean",
-            "tool_format_violation_rate_mean",
+            "agent_failure_rate_mean",
+            "interaction_failure_rate_mean",
+            "timeout_rate_mean",
             "success_rate_mean"
         ],
         index="model",
         columns="quant"
     )
 
-    fig, ax = plt.subplots(figsize=(7,5))
+    fig, ax = plt.subplots(figsize=(7, 5))
 
     sns.heatmap(
         heatmap_data,
@@ -270,8 +272,6 @@ def plot_success_vs_energy(trade_df, plots_path):
 
 
 def plot_success_vs_memory(df, plots_path):
-
-    df = standardize_labels(df)
 
     fig, ax = plt.subplots(figsize=FIGSIZE)
 
@@ -344,8 +344,6 @@ def plot_tool_efficiency(trade_df, plots_path):
 
 def plot_resource_usage(df, plots_path):
 
-    df = standardize_labels(df)
-
     resource_df = df[
         [
             "model",
@@ -408,7 +406,6 @@ def run(results_path, plots_path):
         raise FileNotFoundError(master_csv)
 
     df = pd.read_csv(master_csv)
-
     df = standardize_labels(df)
 
     trade_df = load_tradeoff_metrics(results_path)

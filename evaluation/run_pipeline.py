@@ -43,9 +43,8 @@ def run_pipeline():
 
     print("\n3. Generating Plots")
     generate_plots.run(results_path, plots_path)
-    enhanced_plots.run(results_path, enhanced_plots_path)
+    #enhanced_plots.run(results_path, enhanced_plots_path)
     print("\nPipeline completed.\n")
-
 
 if __name__ == "__main__":
     run_pipeline()

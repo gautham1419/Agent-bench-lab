@@ -11,18 +11,6 @@ def extract_score(out):
     return res.get("reward")
 
 
-def count_turns(messages):
-    return sum(1 for m in messages if m.get("role") == "assistant")
-
-
-def count_tool_calls(messages):
-    total = 0
-    for m in messages:
-        if "tool_calls" in m:
-            total += len(m["tool_calls"])
-    return total
-
-
 def count_lines(file_path):
     if file_path is None or not file_path.exists():
         return 0
@@ -33,15 +21,15 @@ def count_lines(file_path):
 def compute_performance(runs_file, error_file=None):
 
     runs_completed = 0
-    errors = count_lines(error_file)
 
     successes = 0
     failures = 0
+    timeouts = 0
     rewards = []
 
-    tool_calls_total = 0
-    turns_total = 0
-
+    # -------------------------------
+    # PARSE runs.jsonl
+    # -------------------------------
     with open(runs_file) as f:
         for line in f:
             r = json.loads(line)
@@ -50,57 +38,76 @@ def compute_performance(runs_file, error_file=None):
 
             out = r.get("output") or {}
             res = out.get("result") or {}
-            messages = res.get("messages") or []
 
+            status = (res.get("status") or "").lower()
             score = extract_score(out)
 
-            if score is not None:
+            # ---- success ----
+            if score is not None and score > 0:
+                successes += 1
                 rewards.append(score)
 
-                if score > 0:
-                    successes += 1
+            else:
+                failures += 1
+
+            # ---- timeout ----
+            if "limit" in status:
+                timeouts += 1
+
+    # -------------------------------
+    # PARSE error.jsonl
+    # -------------------------------
+    crashes = 0
+    extra_failures = 0
+
+    if error_file is not None and error_file.exists():
+        with open(error_file) as f:
+            for line in f:
+                r = json.loads(line)
+                err = (r.get("error") or "").lower()
+
+                if "agent_failed" in err or "interact_failed" in err:
+                    extra_failures += 1
                 else:
-                    failures += 1
+                    crashes += 1
 
-            tool_calls_total += count_tool_calls(messages)
-            turns_total += count_turns(messages)
+    # -------------------------------
+    # FINAL COUNTS
+    # -------------------------------
+    failures += extra_failures
 
-    total_tasks = runs_completed + errors
+    total_tasks = runs_completed + extra_failures + crashes
 
-    # ---- rates ----
-
+    # -------------------------------
+    # RATES
+    # -------------------------------
     if total_tasks > 0:
         success_rate = successes / total_tasks
         failure_rate = failures / total_tasks
         completion_rate = runs_completed / total_tasks
-        crash_rate = errors / total_tasks
+        crash_rate = crashes / total_tasks
     else:
         success_rate = failure_rate = completion_rate = crash_rate = 0
 
-    mean_reward = sum(rewards) / len(rewards) if rewards else 0
+    agent_failure_rate = failures / runs_completed if runs_completed else 0
 
-    avg_tool_calls = tool_calls_total / runs_completed if runs_completed else 0
-    avg_turns = turns_total / runs_completed if runs_completed else 0
+    mean_reward = sum(rewards) / len(rewards) if rewards else 0
 
     return {
         "total_tasks": total_tasks,
         "runs_completed": runs_completed,
-        "errors": errors,
-
-        "reward": sum(rewards),
-        "score": mean_reward,
-
-        "tool_calls_total": tool_calls_total,
+        "crashes": crashes,
 
         "successes": successes,
         "failures": failures,
+        "timeouts": timeouts,
 
         "success_rate": success_rate,
         "failure_rate": failure_rate,
+        "agent_failure_rate": agent_failure_rate,
         "completion_rate": completion_rate,
         "crash_rate": crash_rate,
 
         "mean_reward": mean_reward,
-        "avg_tool_calls": avg_tool_calls,
-        "avg_turns": avg_turns
+        "reward": sum(rewards)
     }

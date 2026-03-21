@@ -1,0 +1,20 @@
+{
+    "model": "ministral3",
+    "size": "8B",
+    "quant": "q4_k_m",
+    "domain": "os",
+    "agent_name": "ollama-ministral3-8b-reasoning-q4_k_m",
+    "metrics": {
+        "total_tasks": 11,
+        "runs_completed": 10,
+        "successes": 4,
+        "failures": 6,
+        "errors": 1,
+        "success_rate": 0.36363636363636365,
+        "mean_reward": 0.4,
+        "avg_tool_calls": 2.5,
+        "energy": 31500.293638000014,
+        "cpu": 5.7555555555555555,
+        "ram": 148.33527612433863
+    }
+}

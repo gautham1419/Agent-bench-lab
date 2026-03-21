@@ -5,22 +5,44 @@ from pathlib import Path
 
 from metrics.tradeoffs import compute_tradeoffs
 
+
+# -------------------------------
+# COUNT METRICS (not averaged)
+# -------------------------------
 COUNT_METRICS = [
     "total_tasks",
     "successes",
     "failures",
-    "errors"
+    "errors",
+
+    # optional reliability counts
+    "interaction_failures",
+    "timeout_failures",
+    "tool_format_failures"
 ]
 
+
+# -------------------------------
+# TARGET METRICS (averaged)
+# -------------------------------
 TARGET_METRICS = [
+    # --- performance ---
     "success_rate",
     "mean_reward",
-    "failure_rate",
+    "overall_failure_rate",
+    "agent_failure_rate",
     "avg_tool_calls",
     "avg_turns",
-    "runs_crashed",
-    "agent_crash_rate",
-    "tool_format_violation_rate",
+
+    # --- reliability ---
+    "interaction_failure_rate",
+    "timeout_rate",
+    "tool_format_rate",
+
+    # --- system ---
+    "crash_rate",
+
+    # --- hardware ---
     "energy",
     "cpu",
     "ram",
@@ -30,22 +52,31 @@ TARGET_METRICS = [
 ]
 
 
+# -------------------------------
+# METRIC ALIASES (for compatibility)
+# -------------------------------
 METRIC_ALIASES = {
+    # hardware
     "energy": "total_energy_joules",
     "cpu": "cpu_avg",
     "ram": "ram_avg",
     "gpu_util": "gpu_util_avg",
     "gpu_mem": "gpu_mem_avg",
-    "gpu_power": "gpu_power_avg"
+    "gpu_power": "gpu_power_avg",
+
+    # old naming compatibility
+    "tool_format_rate": "tool_format_violation_rate"
 }
 
 
+# -------------------------------
+# NORMALIZE METRICS
+# -------------------------------
 def normalize_metrics(metrics):
 
     normalized = {}
 
     for m in TARGET_METRICS:
-
         source = METRIC_ALIASES.get(m, m)
 
         if source in metrics:
@@ -54,20 +85,24 @@ def normalize_metrics(metrics):
     return normalized
 
 
+# -------------------------------
+# MEAN + STD
+# -------------------------------
 def compute_mean_std(values):
 
     if not values:
         return 0, 0
 
     mean = sum(values) / len(values)
-
     variance = sum((x - mean) ** 2 for x in values) / len(values)
-
     std = math.sqrt(variance)
 
     return mean, std
 
 
+# -------------------------------
+# AVERAGE RUN FILES
+# -------------------------------
 def average_metrics(files):
 
     metric_values = {m: [] for m in TARGET_METRICS}
@@ -79,15 +114,14 @@ def average_metrics(files):
             data = json.load(f)
 
         raw_metrics = data["metrics"]
-
         metrics = normalize_metrics(raw_metrics)
 
-        # collect averaged metrics
+        # ---- averaged metrics ----
         for m in TARGET_METRICS:
             if m in metrics:
                 metric_values[m].append(metrics[m])
 
-        # collect counts (just store first run value)
+        # ---- counts (take first run only) ----
         for c in COUNT_METRICS:
             if c in raw_metrics and c not in counts:
                 counts[c] = raw_metrics[c]
@@ -95,18 +129,19 @@ def average_metrics(files):
     results = {}
 
     for m, values in metric_values.items():
-
         mean, std = compute_mean_std(values)
-
         results[f"{m}_mean"] = mean
         results[f"{m}_std"] = std
 
-    # add counts without averaging
+    # attach counts (no averaging)
     results.update(counts)
 
     return results, len(files)
 
 
+# -------------------------------
+# COLLECT RUN AVERAGES
+# -------------------------------
 def collect_run_averages(results_dir, runs_to_average):
 
     runs_dir = results_dir / "runs"
@@ -124,6 +159,8 @@ def collect_run_averages(results_dir, runs_to_average):
 
         if not run_files:
             continue
+
+        print(f"Using {len(run_files)} runs: {[f.name for f in run_files]}")
 
         avg_metrics, num_runs = average_metrics(run_files)
 
@@ -161,12 +198,14 @@ def collect_run_averages(results_dir, runs_to_average):
         }
 
         record.update(avg_metrics)
-
         master_records.append(record)
 
     return master_records
 
 
+# -------------------------------
+# AGGREGATE BY DIMENSION
+# -------------------------------
 def aggregate_dimension(master_records, key):
 
     results = {}
@@ -183,7 +222,6 @@ def aggregate_dimension(master_records, key):
             if k in ["model", "size", "quant", "domain"]:
                 continue
 
-            # only use mean metrics
             if not k.endswith("_mean"):
                 continue
 
@@ -198,8 +236,6 @@ def aggregate_dimension(master_records, key):
         for m, values in metrics.items():
 
             mean, std = compute_mean_std(values)
-
-            # remove "_mean" suffix
             base = m.replace("_mean", "")
 
             final[group][f"{base}_mean"] = mean
@@ -208,6 +244,9 @@ def aggregate_dimension(master_records, key):
     return final
 
 
+# -------------------------------
+# SAVE HELPERS
+# -------------------------------
 def save_json(data, path):
 
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -233,6 +272,9 @@ def save_csv(records, path):
     print("Saved:", path)
 
 
+# -------------------------------
+# MAIN ENTRY
+# -------------------------------
 def run(results_dir, runs_to_average):
 
     agg_dir = results_dir / "aggregated"
@@ -255,12 +297,12 @@ def run(results_dir, runs_to_average):
     save_json(domain_comp, agg_dir / "domain_comparison.json")
 
     save_json(master_records, results_dir / "master_results.json")
-
     save_csv(master_records, results_dir / "master_results.csv")
 
-    # ---- compute tradeoffs ----
+    # ---- tradeoffs ----
     tradeoffs = compute_tradeoffs(master_records)
     tradeoff_file = agg_dir / "tradeoff_metrics.json"
+
     with open(tradeoff_file, "w") as f:
         json.dump(tradeoffs, f, indent=2)
 
