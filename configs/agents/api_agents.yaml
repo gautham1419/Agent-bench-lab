@@ -223,3 +223,45 @@ ollama-qwen3-8b-bf16:
     name: "ollama-qwen3-8b-bf16"
     body:
       model: "hf.co/unsloth/Qwen3-8B-GGUF:BF16"
+
+deepseek-r1-qwen-1.5b-q4_k_m:
+  import: "./ollama-qwen-chat.yaml" # dont change
+  parameters:
+    name: "deepseek-r1-qwen-1.5b-q4_k_m"
+    body:
+      model: "hf.co/bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF:Q4_K_M"
+
+deepseek-r1-qwen-1.5b-q8_0:
+  import: "./ollama-qwen-chat.yaml" # dont change
+  parameters:
+    name: "deepseek-r1-qwen-1.5b-q8_0"
+    body:
+      model: "hf.co/bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF:Q8_0"
+
+deepseek-r1-qwen-1.5b-f16:
+  import: "./ollama-qwen-chat.yaml" # dont change
+  parameters:
+    name: "deepseek-r1-qwen-1.5b-f16"
+    body:
+      model: "hf.co/bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF:F16"
+
+deepseek-r1-qwen-7b-q4_k_m:
+  import: "./ollama-qwen-chat.yaml" # dont change
+  parameters:
+    name: "deepseek-r1-qwen-7b-q4_k_m"
+    body:
+      model: "hf.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF:Q4_K_M"
+
+deepseek-r1-qwen-7b-q8_0:
+  import: "./ollama-qwen-chat.yaml" # dont change
+  parameters:
+    name: "deepseek-r1-qwen-7b-q8_0"
+    body:
+      model: "hf.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF:Q8_0"
+
+deepseek-r1-qwen-7b-f16:
+  import: "./ollama-qwen-chat.yaml" # dont change
+  parameters:
+    name: "deepseek-r1-qwen-7b-f16"
+    body:
+      model: "hf.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF:F16"

@@ -1,0 +1,2 @@
+{"index": 104, "error": "AGENT_FAILED", "info": "Failed.", "output": null, "time": {"timestamp": 1774261757946, "str": "2026-03-23 15:59:17"}}
+{"index": 16, "error": "INTERACT_FAILED", "info": "{\"message\":\"session not found\"}\n", "output": null, "time": {"timestamp": 1774269669347, "str": "2026-03-23 18:11:09"}}

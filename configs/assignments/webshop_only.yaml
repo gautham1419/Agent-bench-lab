@@ -4,7 +4,7 @@ concurrency:
   task:
     webshop-std: 1
   agent:
-    #ollama-qwen3-4b-q4_k_m: 1
+    ollama-qwen3-4b-q4_k_m: 1
     #ollama-qwen3-4b-q8_0: 1
     #ollama-gemma3-4b-it-q4_k_m: 1
     #ollama-ministral3-3b-reasoning-q4_k_m: 1
@@ -22,11 +22,17 @@ concurrency:
     #ollama-qwen3-4b-t-f16: 1
     #ollama-qwen3-8b-q4_k_m: 1
     #ollama-qwen3-8b-q8_0: 1
-    ollama-qwen3-8b-bf16: 1
+    #ollama-qwen3-8b-bf16: 1
+    deepseek-r1-qwen-1.5b-q4_k_m: 1
+    # deepseek-r1-qwen-1.5b-q8_0: 1
+    # deepseek-r1-qwen-1.5b-f16: 1
+    # deepseek-r1-qwen-7b-q4_k_m: 1
+    # deepseek-r1-qwen-7b-q8_0: 1
+    # deepseek-r1-qwen-7b-f16: 1
 
 assignments:
   - agent:
-      #- ollama-qwen3-4b-q4_k_m
+      - ollama-qwen3-4b-q4_k_m
       #- ollama-qwen3-4b-q8_0
       #- ollama-gemma3-4b-it-q4_k_m
       #- ollama-ministral3-3b-reasoning-q4_k_m
@@ -44,8 +50,14 @@ assignments:
       #- ollama-qwen3-4b-t-f16
       #- ollama-qwen3-8b-q4_k_m
       #- ollama-qwen3-8b-q8_0
-      - ollama-qwen3-8b-bf16
+      #- ollama-qwen3-8b-bf16
+      - deepseek-r1-qwen-1.5b-q4_k_m
+      #- deepseek-r1-qwen-1.5b-q8_0
+      #- deepseek-r1-qwen-1.5b-f16
+      #- deepseek-r1-qwen-7b-q4_k_m
+      #- deepseek-r1-qwen-7b-q8_0
+      #- deepseek-r1-qwen-7b-f16
     task:
       - webshop-std
 
-output: "new_outputs/{TIMESTAMP}_ollama-qwen3-8b-bf16-run1"
+output: "new_outputs/{TIMESTAMP}_ollama-qwen3-4b-bf16-run3"
