@@ -1,25 +1,25 @@
 assignments:
-- agent: ollama-ministral3-3b-reasoning-q8_0
+- agent: ollama-ministral3-8b-reasoning-q8_0
   task: os-std
 concurrency:
   agent:
-    ollama-ministral3-3b-reasoning-q8_0: 1
+    ollama-ministral3-8b-reasoning-q8_0: 1
   task:
     os-std: 1
 definition:
   agent:
-    ollama-ministral3-3b-reasoning-q8_0:
+    ollama-ministral3-8b-reasoning-q8_0:
       module: src.client.agents.HTTPAgent
       parameters:
         body:
           format: json
-          model: hf.co/unsloth/Ministral-3-3B-Reasoning-2512-GGUF:Q8_0
+          model: hf.co/unsloth/Ministral-3-8B-Reasoning-2512-GGUF:Q8_0
           options:
             temperature: 0
           stream: false
         headers:
           Content-Type: application/json
-        name: ollama-ministral3-3b-reasoning-q8_0
+        name: ollama-ministral3-8b-reasoning-q8_0
         prompter:
           args:
             agent_role: assistant
@@ -112,4 +112,4 @@ definition:
               - answer
               type: object
           type: function
-output: new_outputs/2026-03-21-23-16-36_-ollama-ministral3-8b-reasoning-q8_0-run2
+output: new_outputs/2026-04-07-14-54-31_ollama-ministral3-8b-reasoning-q8_0-run3

@@ -206,12 +206,23 @@ def main():
         if not run_folder.is_dir():
             continue
             
+        # Filter out deepseek and run3 folders, and anything else outside normal bounds
+        folder_name = run_folder.name.lower()
+        if "deepseek" in folder_name or "run3" in folder_name:
+            continue
+            
         res = calculate_metrics_for_run(run_folder)
         if res:
             env_dir = results_dir / res['domain']
             env_dir.mkdir(exist_ok=True)
             
-            run_id = run_folder.name.split("-run")[-1] if "-run" in run_folder.name else "1"
+            # Try parsing run1 or run2 naming
+            run_id = "1"
+            if "-run2" in folder_name or "_run2" in folder_name:
+                run_id = "2"
+                
+            res['run_id'] = run_id
+            
             model_variant = f"{res['model']}_{res['size']}_{res['quant']}"
             out_file = env_dir / f"{model_variant}_run{run_id}.json"
             
@@ -220,10 +231,64 @@ def main():
                 
             all_results.append(res)
             
-    with open(results_dir / "master_computed.json", 'w') as f:
+    # Save flat list of all parsed runs
+    with open(results_dir / "master_computed_all_runs.json", 'w') as f:
         json.dump(all_results, f, indent=4)
         
-    print(f"Successfully extracted exact AgentBench status states for {len(all_results)} runs!")
+    mean_dir = results_dir / "mean"
+    mean_dir.mkdir(exist_ok=True)
+    
+    aggregated_results = []
+    from collections import defaultdict
+    import math
+    
+    grouped = defaultdict(list)
+    for r in all_results:
+        key = (r["model"], r["size"], r["quant"], r["domain"], r["agent_name"])
+        grouped[key].append(r)
+        
+    for key, runs in grouped.items():
+        if not runs: continue
+        model, size, quant, domain, agent_name = key
+        
+        avg_metrics = {}
+        metric_keys = runs[0]["metrics"].keys()
+        
+        for mk in metric_keys:
+            valid_vals = [r["metrics"][mk] for r in runs if isinstance(r["metrics"][mk], (int, float))]
+            if not valid_vals:
+                avg_metrics[mk] = 0
+                continue
+                
+            # Treat infinity gracefully across averages
+            non_inf = [v for v in valid_vals if not math.isinf(v)]
+            if not non_inf:
+                avg_metrics[mk] = float("inf")
+            else:
+                avg_metrics[mk] = sum(non_inf) / len(non_inf)
+                
+        mean_data = {
+            "model": model,
+            "size": size,
+            "quant": quant,
+            "domain": domain,
+            "agent_name": agent_name,
+            "metrics": avg_metrics
+        }
+        aggregated_results.append(mean_data)
+        
+        # Save individual mean files for transparency
+        model_variant = f"{model}_{size}_{quant}"
+        env_mean_dir = mean_dir / domain
+        env_mean_dir.mkdir(exist_ok=True)
+        out_file = env_mean_dir / f"{model_variant}_mean.json"
+        with open(out_file, 'w') as f:
+            json.dump(mean_data, f, indent=4)
+            
+    with open(mean_dir / "master_mean.json", 'w') as f:
+        json.dump(aggregated_results, f, indent=4)
+        
+    print(f"Successfully extracted {len(all_results)} runs and aggregated into {len(aggregated_results)} mean configurations inside computed_results/mean/!")
 
 if __name__ == "__main__":
     main()

@@ -1,14 +1,14 @@
 {
-    "cpu_avg": 5.7190270047412906,
-    "cpu_peak": 16.2,
-    "ram_avg": 150.54412025226756,
-    "ram_peak": 152.2109375,
-    "gpu_util_avg": 23.089569160997733,
-    "gpu_util_peak": 37,
-    "gpu_mem_avg": 9433.444837404659,
-    "gpu_mem_peak": 9472.5,
-    "gpu_power_avg": 101.69986229643372,
-    "gpu_energy_joules": 493346.0320000004,
-    "cpu_energy_joules": 194474.977383,
-    "total_energy_joules": 687821.0093830004
+    "cpu_avg": 5.529122486288848,
+    "cpu_peak": 16.1,
+    "ram_avg": 148.16021230861517,
+    "ram_peak": 150.05859375,
+    "gpu_util_avg": 36.13610603290677,
+    "gpu_util_peak": 56,
+    "gpu_mem_avg": 15003.575811243145,
+    "gpu_mem_peak": 15060.8125,
+    "gpu_power_avg": 146.60103007312614,
+    "gpu_energy_joules": 801907.6345000007,
+    "cpu_energy_joules": 206528.941204,
+    "total_energy_joules": 1008436.5757040008
 }

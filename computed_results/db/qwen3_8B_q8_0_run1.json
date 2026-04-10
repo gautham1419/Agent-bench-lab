@@ -33,5 +33,6 @@
         "energy_per_success": 5918.425403703297,
         "energy_per_action": 648.8876045024097,
         "latency_per_turn": 0.0
-    }
+    },
+    "run_id": "1"
 }

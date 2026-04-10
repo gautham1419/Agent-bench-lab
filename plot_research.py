@@ -58,7 +58,7 @@ def load_data(json_path):
 def plot_rq1_success_decay(df, out_path):
     fig, ax = plt.subplots(figsize=FIGSIZE)
     sns.lineplot(data=df, x="quant", y="success_rate", hue="model", marker="o", linewidth=2, palette=MODEL_COLORS, ax=ax)
-    ax.set_title("RQ1: Task Success Decay vs Quantization")
+    ax.set_title("RQ1: Task Success Decay vs Quantization (Mean over 2 Runs)")
     ax.set_xlabel("Quantization Level")
     ax.set_ylabel("Success Rate")
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: '{:.0%}'.format(y)))
@@ -68,7 +68,7 @@ def plot_rq1_success_decay(df, out_path):
 def plot_rq1_wandering(df, out_path):
     fig, ax = plt.subplots(figsize=FIGSIZE)
     sns.barplot(data=df, x="quant", y="avg_turns_to_success", hue="model", palette=MODEL_COLORS, ax=ax)
-    ax.set_title("RQ1: Wandering (Avg Turns Before Success)")
+    ax.set_title("RQ1: Wandering (Avg Turns Before Success) (Mean over 2 Runs)")
     ax.set_xlabel("Quantization Level")
     ax.set_ylabel("Average Conversational Turns")
     ax.legend(title="Model", bbox_to_anchor=(1.05, 1), loc='upper left')
@@ -111,7 +111,7 @@ def plot_rq2_failure_anatomy(df, out_path):
     color_map = ["#FFB300", "#1E88E5", "#D81B60", "#455A64", "#00897B"]
     plot_df.plot(kind="bar", stacked=True, color=color_map, ax=ax)
     
-    ax.set_title("RQ2: Explicit AgentBench Failure Anatomy by Model")
+    ax.set_title("RQ2: Explicit AgentBench Failure Anatomy by Model (Mean over 2 Runs)")
     ax.set_ylabel("Share of Total Failures (%)")
     ax.legend(title="Failure Taxonomy", bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.xticks(rotation=45, ha='right')
@@ -121,7 +121,7 @@ def plot_rq2_failure_anatomy(df, out_path):
 def plot_rq3_pareto(df, out_path):
     fig, ax = plt.subplots(figsize=FIGSIZE)
     sns.scatterplot(data=df, x="energy_per_task", y="success_rate", hue="model", style="quant", s=150, palette=MODEL_COLORS, alpha=0.8, ax=ax)
-    ax.set_title("RQ3: Pareto Frontier (Energy vs Success)")
+    ax.set_title("RQ3: Pareto Frontier (Energy vs Success) (Mean over 2 Runs)")
     ax.set_xlabel("Energy per Task (Joules)")
     ax.set_ylabel("Success Rate")
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: '{:.0%}'.format(y)))
@@ -131,7 +131,7 @@ def plot_rq3_pareto(df, out_path):
 def plot_rq3_true_cost(df, out_path):
     fig, ax = plt.subplots(figsize=FIGSIZE)
     sns.barplot(data=df, x="quant", y="energy_per_success", hue="model", palette=MODEL_COLORS, ax=ax)
-    ax.set_title("RQ3: True Cost of a Successful Task")
+    ax.set_title("RQ3: True Cost of a Successful Task (Mean over 2 Runs)")
     ax.set_xlabel("Quantization Level")
     ax.set_ylabel("Energy (Joules) per Success")
     ax.set_yscale("log") 
@@ -141,7 +141,7 @@ def plot_rq3_true_cost(df, out_path):
 def plot_rq3_hardware_ceiling(df, out_path):
     fig, ax = plt.subplots(figsize=FIGSIZE)
     sns.barplot(data=df, x="quant", y="gpu_mem_peak", hue="model", palette=MODEL_COLORS, ax=ax)
-    ax.set_title("RQ3: Hardware Barrier to Entry (Peak VRAM)")
+    ax.set_title("RQ3: Hardware Barrier to Entry (Peak VRAM) (Mean over 2 Runs)")
     ax.set_xlabel("Quantization Level")
     ax.set_ylabel("Peak VRAM Allocated (MB)")
     ax.legend(title="Model", bbox_to_anchor=(1.05, 1), loc='upper left')
@@ -156,7 +156,7 @@ def plot_rq3_energy_composition(df, out_path):
     fig, ax = plt.subplots(figsize=(12, 6))
     plot_df.plot(kind="bar", stacked=True, color=["#4CAF50", "#2196F3"], ax=ax)
     
-    ax.set_title("RQ3: Energy Draw Composition (GPU vs CPU per Task)")
+    ax.set_title("RQ3: Energy Draw Composition (GPU vs CPU per Task) (Mean over 2 Runs)")
     ax.set_ylabel("Average Energy Consumed (Joules)")
     ax.legend(["Dedicated GPU Energy", "System CPU Energy"], bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.xticks(rotation=45, ha='right')
@@ -164,13 +164,13 @@ def plot_rq3_energy_composition(df, out_path):
     save_plot(fig, out_path / "rq3_energy_composition_split")
 
 def main():
-    json_path = Path("computed_results/master_computed.json")
+    json_path = Path("computed_results/mean/master_mean.json")
     if not json_path.exists():
         print(f"Error: {json_path} not found! Please run calculate_metrics.py first.")
         return
         
     df = load_data(json_path)
-    base_out = Path("research_plots")
+    base_out = Path("research_plots_v2")
     domains = [None] + list(df["domain"].dropna().unique())
     
     print(f"Mapping the strictly defined native AgentBench definitions for {len(df)} environment runs...")
