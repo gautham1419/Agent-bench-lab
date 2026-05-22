@@ -1,0 +1,5 @@
+{"index": 190, "error": "INTERACT_FAILED", "info": "{\"message\":\"session not found\"}\n", "output": null, "time": {"timestamp": 1776863154890, "str": "2026-04-22 18:35:54"}}
+{"index": 151, "error": "INTERACT_FAILED", "info": "{\"message\":\"session not found\"}\n", "output": null, "time": {"timestamp": 1776864097556, "str": "2026-04-22 18:51:37"}}
+{"index": 131, "error": "AGENT_FAILED", "info": "Failed.", "output": null, "time": {"timestamp": 1776864644382, "str": "2026-04-22 19:00:44"}}
+{"index": 117, "error": "INTERACT_FAILED", "info": "{\"message\":\"session not found\"}\n", "output": null, "time": {"timestamp": 1776865202280, "str": "2026-04-22 19:10:02"}}
+{"index": 84, "error": "AGENT_FAILED", "info": "Failed.", "output": null, "time": {"timestamp": 1776866082439, "str": "2026-04-22 19:24:42"}}

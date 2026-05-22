@@ -1,0 +1,11 @@
+{"index": 130, "error": "AGENT_FAILED", "info": "Failed.", "output": null, "time": {"timestamp": 1777373495959, "str": "2026-04-28 16:21:35"}}
+{"index": 127, "error": "AGENT_FAILED", "info": "Failed.", "output": null, "time": {"timestamp": 1777373918293, "str": "2026-04-28 16:28:38"}}
+{"index": 123, "error": "AGENT_FAILED", "info": "Failed.", "output": null, "time": {"timestamp": 1777374392878, "str": "2026-04-28 16:36:32"}}
+{"index": 110, "error": "AGENT_FAILED", "info": "Failed.", "output": null, "time": {"timestamp": 1777375209866, "str": "2026-04-28 16:50:09"}}
+{"index": 94, "error": "AGENT_FAILED", "info": "Failed.", "output": null, "time": {"timestamp": 1777376076719, "str": "2026-04-28 17:04:36"}}
+{"index": 93, "error": "INTERACT_FAILED", "info": "{\"message\":\"session not found\"}\n", "output": null, "time": {"timestamp": 1777376450799, "str": "2026-04-28 17:10:50"}}
+{"index": 78, "error": "AGENT_FAILED", "info": "Failed.", "output": null, "time": {"timestamp": 1777377123028, "str": "2026-04-28 17:22:03"}}
+{"index": 77, "error": "AGENT_FAILED", "info": "Failed.", "output": null, "time": {"timestamp": 1777377505816, "str": "2026-04-28 17:28:25"}}
+{"index": 68, "error": "AGENT_FAILED", "info": "Failed.", "output": null, "time": {"timestamp": 1777378050182, "str": "2026-04-28 17:37:30"}}
+{"index": 23, "error": "AGENT_FAILED", "info": "Failed.", "output": null, "time": {"timestamp": 1777379448636, "str": "2026-04-28 18:00:48"}}
+{"index": 16, "error": "INTERACT_FAILED", "info": "{\"message\":\"session not found\"}\n", "output": null, "time": {"timestamp": 1777379603955, "str": "2026-04-28 18:03:23"}}

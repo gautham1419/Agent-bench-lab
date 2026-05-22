@@ -1,0 +1,14 @@
+{
+    "cpu_avg": 6.139180303257769,
+    "cpu_peak": 14.9,
+    "ram_avg": 149.90072460028523,
+    "ram_peak": 153.90234375,
+    "gpu_util_avg": 20.943732172346493,
+    "gpu_util_peak": 32,
+    "gpu_mem_avg": 5574.809641945654,
+    "gpu_mem_peak": 5582.5,
+    "gpu_power_avg": 99.4173824050443,
+    "gpu_energy_joules": 1655547.9604999984,
+    "cpu_energy_joules": 644786.668222,
+    "total_energy_joules": 2300334.6287219985
+}

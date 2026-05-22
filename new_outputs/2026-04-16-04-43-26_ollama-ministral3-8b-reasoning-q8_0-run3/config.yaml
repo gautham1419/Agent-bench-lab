@@ -1,0 +1,66 @@
+assignments:
+- agent: ollama-ministral3-8b-reasoning-q8_0
+  task: webshop-std
+concurrency:
+  agent:
+    ollama-ministral3-8b-reasoning-q8_0: 1
+  task:
+    webshop-std: 1
+definition:
+  agent:
+    ollama-ministral3-8b-reasoning-q8_0:
+      module: src.client.agents.HTTPAgent
+      parameters:
+        body:
+          format: json
+          model: hf.co/unsloth/Ministral-3-8B-Reasoning-2512-GGUF:Q8_0
+          options:
+            temperature: 0
+          stream: false
+        headers:
+          Content-Type: application/json
+        name: ollama-ministral3-8b-reasoning-q8_0
+        prompter:
+          args:
+            agent_role: assistant
+          name: role_content_dict
+        return_format: '{response[message][content]}'
+        url: http://localhost:11434/api/chat
+  task:
+    webshop-std:
+      module: src.client.TaskClient
+      parameters:
+        concurrency: 64
+        controller_address: http://localhost:5020/api
+        end: 200
+        name: webshop-std
+        round: 20
+        start: 0
+        tools:
+        - function:
+            description: Use search functionality with specified keywords.
+            name: search_action
+            parameters:
+              additionalProperties: false
+              properties:
+                keywords:
+                  description: The keywords to use in the search function.
+                  type: string
+              required:
+              - keywords
+              type: object
+          type: function
+        - function:
+            description: Click a button or link with a specified value.
+            name: click_action
+            parameters:
+              additionalProperties: false
+              properties:
+                value:
+                  description: The value to click from the list of available actions.
+                  type: string
+              required:
+              - value
+              type: object
+          type: function
+output: new_outputs/2026-04-16-04-43-26_ollama-ministral3-8b-reasoning-q8_0-run3

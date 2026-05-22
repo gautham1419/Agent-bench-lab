@@ -23,12 +23,12 @@ concurrency:
     #ollama-qwen3-8b-q4_k_m: 1
     #ollama-qwen3-8b-q8_0: 1
     #ollama-qwen3-8b-bf16: 1
-    deepseek-r1-qwen-1.5b-q4_k_m: 1
-    # deepseek-r1-qwen-1.5b-q8_0: 1
-    # deepseek-r1-qwen-1.5b-f16: 1
-    # deepseek-r1-qwen-7b-q4_k_m: 1
-    # deepseek-r1-qwen-7b-q8_0: 1
-    # deepseek-r1-qwen-7b-f16: 1
+    #deepseek-r1-qwen-1.5b-q4_k_m: 1
+    #deepseek-r1-qwen-1.5b-q8_0: 1
+    #deepseek-r1-qwen-1.5b-f16: 1
+    #deepseek-r1-qwen-7b-q4_k_m: 1
+    #deepseek-r1-qwen-7b-q8_0: 1
+    deepseek-r1-qwen-7b-f16: 1
 
 assignments:
   - agent:
@@ -41,7 +41,7 @@ assignments:
       #- ollama-ministral3-3b-reasoning-q8_0
       #- ollama-ministral3-8b-reasoning-q8_0
       #- ollama-ministral3-3b-reasoning-bf16
-      - ollama-ministral3-8b-reasoning-bf16
+      #- ollama-ministral3-8b-reasoning-bf16
       #- ollama-qwen3.5-4b-q4_k_m
       #- ollama-qwen3.5-4b-q8_0
       #- ollama-qwen3.5-4b-bf16
@@ -51,14 +51,14 @@ assignments:
       #- ollama-qwen3-8b-q4_k_m
       #- ollama-qwen3-8b-q8_0
       #- ollama-qwen3-8b-bf16
-      - deepseek-r1-qwen-1.5b-q4_k_m
+      #- deepseek-r1-qwen-1.5b-q4_k_m
       #- deepseek-r1-qwen-1.5b-q8_0
       #- deepseek-r1-qwen-1.5b-f16
       #- deepseek-r1-qwen-7b-q4_k_m
       #- deepseek-r1-qwen-7b-q8_0
-      #- deepseek-r1-qwen-7b-f16
+      - deepseek-r1-qwen-7b-f16
 
     task:
       - dbbench-std
 
-output: "new_outputs/{TIMESTAMP}_ollama-ministral3-8b-reasoning-bf16-run3"
+output: "new_outputs/{TIMESTAMP}_deepseek-r1-qwen-7b-f16-run3"

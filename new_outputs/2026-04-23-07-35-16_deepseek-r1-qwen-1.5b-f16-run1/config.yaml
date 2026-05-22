@@ -1,0 +1,55 @@
+assignments:
+- agent: deepseek-r1-qwen-1.5b-f16
+  task: alfworld-std
+concurrency:
+  agent:
+    deepseek-r1-qwen-1.5b-f16: 1
+  task:
+    alfworld-std: 1
+definition:
+  agent:
+    deepseek-r1-qwen-1.5b-f16:
+      module: src.client.agents.HTTPAgent
+      parameters:
+        body:
+          format: json
+          model: hf.co/bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF:F16
+          options:
+            temperature: 0
+          stream: false
+        headers:
+          Content-Type: application/json
+        name: deepseek-r1-qwen-1.5b-f16
+        prompter:
+          args:
+            agent_role: assistant
+          name: role_content_dict
+        return_format: '{response[message][content]}'
+        url: http://localhost:11434/api/chat
+  task:
+    alfworld-std:
+      module: src.client.TaskClient
+      parameters:
+        concurrency: 16
+        config_path: /app/src/server/tasks/alfworld/configs/base_config.yaml
+        controller_address: http://localhost:5020/api
+        data_path: /app/data/alfworld
+        max_step: 20
+        name: alfworld-std
+        prompts_path: /app/src/server/tasks/alfworld/prompts/alfworld_multiturn_plan_first.json
+        split: new_std
+        tools:
+        - function:
+            description: Take an action.
+            name: take_action
+            parameters:
+              additionalProperties: false
+              properties:
+                action:
+                  description: The action you would like to take
+                  type: string
+              required:
+              - action
+              type: object
+          type: function
+output: new_outputs/2026-04-23-07-35-16_deepseek-r1-qwen-1.5b-f16-run1

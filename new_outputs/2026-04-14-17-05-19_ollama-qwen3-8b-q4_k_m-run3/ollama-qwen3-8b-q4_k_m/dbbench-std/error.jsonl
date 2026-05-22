@@ -1,0 +1,2 @@
+{"index": 239, "error": "INTERACT_FAILED", "info": "{\"message\":\"session not found\"}\n", "output": null, "time": {"timestamp": 1776167160759, "str": "2026-04-14 17:16:00"}}
+{"index": 194, "error": "START_FAILED", "info": "{\"message\":\"failed to start sample\"}\n", "output": null, "time": {"timestamp": 1776167603959, "str": "2026-04-14 17:23:23"}}
