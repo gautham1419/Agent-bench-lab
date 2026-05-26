@@ -33,6 +33,7 @@ QUANT_LABELS = {
 MODEL_LABELS = {
     "ministral3": "Ministral3",
     "qwen3": "Qwen3",
+    "deepseek-r1-qwen": "DeepSeek R1 Qwen",
 }
 
 

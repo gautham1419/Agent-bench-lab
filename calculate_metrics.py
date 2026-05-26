@@ -5,10 +5,15 @@ from pathlib import Path
 
 def parse_agent_string(agent_str):
     parts = agent_str.split("-")
-    model = parts[1] 
-    size = parts[2].upper() 
-    
-    quant = parts[-1]
+    if len(parts) >= 5 and parts[0] == "deepseek" and parts[1] == "r1" and parts[2] == "qwen":
+        model = "deepseek-r1-qwen"
+        size = parts[3].upper()
+        quant = parts[-1]
+    else:
+        model = parts[1] 
+        size = parts[2].upper() 
+        quant = parts[-1]
+        
     if quant == "f16":
         quant = "bf16"
         
@@ -63,7 +68,7 @@ def calculate_metrics_for_run(run_folder):
     if domain == "webshop": domain = "ws"
     if domain == "alfworld": domain = "alf"
     
-    agent_folders = [p for p in run_folder.iterdir() if p.is_dir() and "ollama" in p.name]
+    agent_folders = [p for p in run_folder.iterdir() if p.is_dir() and (p.name == agent_str or "ollama" in p.name or "deepseek" in p.name)]
     if agent_folders:
         log_dir = agent_folders[0] / domain_full
     else:
@@ -206,20 +211,19 @@ def main():
         if not run_folder.is_dir():
             continue
             
-        # Filter out deepseek and run3 folders, and anything else outside normal bounds
         folder_name = run_folder.name.lower()
-        if "deepseek" in folder_name or "run3" in folder_name:
-            continue
             
         res = calculate_metrics_for_run(run_folder)
         if res:
             env_dir = results_dir / res['domain']
             env_dir.mkdir(exist_ok=True)
             
-            # Try parsing run1 or run2 naming
+            # Try parsing run1, run2, or run3 naming
             run_id = "1"
-            if "-run2" in folder_name or "_run2" in folder_name:
+            if "run2" in folder_name:
                 run_id = "2"
+            elif "run3" in folder_name:
+                run_id = "3"
                 
             res['run_id'] = run_id
             

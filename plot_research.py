@@ -15,13 +15,19 @@ QUANT_LABELS = {
 QUANT_ORDER = ["16-bit", "8-bit", "4-bit"]
 
 MODEL_COLORS = {
-    "Ministral3 3B": "#5E35B1",  
-    "Ministral3 8B": "#311B92",  
-    "Qwen3 4B": "#FF9800",       
-    "Qwen3 8B": "#E65100"        
+    "Ministral3 3B": "#9575CD",  
+    "Ministral3 8B": "#512DA8",  
+    "Qwen3 4B": "#FFB74D",       
+    "Qwen3 8B": "#E65100",
+    "DeepSeek R1 Qwen 1.5B": "#4DB6AC",
+    "DeepSeek R1 Qwen 7B": "#004D40"
 }
 
-MODEL_MAP = {"ministral3": "Ministral3", "qwen3": "Qwen3"}
+MODEL_MAP = {
+    "ministral3": "Ministral3",
+    "qwen3": "Qwen3",
+    "deepseek-r1-qwen": "DeepSeek R1 Qwen"
+}
 
 def save_plot(fig, path):
     path.parent.mkdir(parents=True, exist_ok=True)

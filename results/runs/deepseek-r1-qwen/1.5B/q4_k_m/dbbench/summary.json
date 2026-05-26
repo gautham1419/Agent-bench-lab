@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "model": "deepseek-r1-qwen",
+    "size": "1.5B",
+    "quant": "q4_k_m",
+    "domain": "dbbench",
+    "num_runs": 1,
+    "runs_used": [
+      "run1.json"
+    ]
+  },
+  "metrics": {
+    "success_rate_mean": 0.023333333333333334,
+    "success_rate_std": 0.0,
+    "mean_reward_mean": 1.0,
+    "mean_reward_std": 0.0,
+    "overall_failure_rate_mean": 0,
+    "overall_failure_rate_std": 0,
+    "agent_failure_rate_mean": 0.0,
+    "agent_failure_rate_std": 0.0,
+    "avg_tool_calls_mean": 0,
+    "avg_tool_calls_std": 0,
+    "avg_turns_mean": 0,
+    "avg_turns_std": 0,
+    "interaction_failure_rate_mean": 0.0,
+    "interaction_failure_rate_std": 0.0,
+    "timeout_rate_mean": 0.0,
+    "timeout_rate_std": 0.0,
+    "tool_format_rate_mean": 0,
+    "tool_format_rate_std": 0,
+    "crash_rate_mean": 0.0,
+    "crash_rate_std": 0.0,
+    "energy_mean": 1418793.1066190004,
+    "energy_std": 0.0,
+    "cpu_mean": 5.581239662586834,
+    "cpu_std": 0.0,
+    "ram_mean": 146.88272689329722,
+    "ram_std": 0.0,
+    "gpu_util_mean": 11.633600727753887,
+    "gpu_util_std": 0.0,
+    "gpu_mem_mean": 3492.0136867350316,
+    "gpu_mem_std": 0.0,
+    "gpu_power_mean": 78.72398631326497,
+    "gpu_power_std": 0.0,
+    "total_tasks": 300,
+    "successes": 7,
+    "failures": 293,
+    "interaction_failures": 0,
+    "timeout_failures": 0,
+    "tool_format_failures": 0
+  }
+}

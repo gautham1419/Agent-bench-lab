@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "model": "deepseek-r1-qwen",
+    "size": "1.5B",
+    "quant": "bf16",
+    "domain": "webshop",
+    "num_runs": 1,
+    "runs_used": [
+      "run1.json"
+    ]
+  },
+  "metrics": {
+    "success_rate_mean": 0.0,
+    "success_rate_std": 0.0,
+    "mean_reward_mean": 0.0,
+    "mean_reward_std": 0.0,
+    "overall_failure_rate_mean": 0,
+    "overall_failure_rate_std": 0,
+    "agent_failure_rate_mean": 0.0,
+    "agent_failure_rate_std": 0.0,
+    "avg_tool_calls_mean": 0,
+    "avg_tool_calls_std": 0,
+    "avg_turns_mean": 0,
+    "avg_turns_std": 0,
+    "interaction_failure_rate_mean": 0.0,
+    "interaction_failure_rate_std": 0.0,
+    "timeout_rate_mean": 0.0,
+    "timeout_rate_std": 0.0,
+    "tool_format_rate_mean": 0,
+    "tool_format_rate_std": 0,
+    "crash_rate_mean": 0.0,
+    "crash_rate_std": 0.0,
+    "energy_mean": 967726.0280299954,
+    "energy_std": 0.0,
+    "cpu_mean": 6.338734536605151,
+    "cpu_std": 0.0,
+    "ram_mean": 144.93613559834043,
+    "ram_std": 0.0,
+    "gpu_util_mean": 19.227878050429258,
+    "gpu_util_std": 0.0,
+    "gpu_mem_mean": 5585.143856046779,
+    "gpu_mem_std": 0.0,
+    "gpu_power_mean": 92.20980220374501,
+    "gpu_power_std": 0.0,
+    "total_tasks": 200,
+    "successes": 0,
+    "failures": 200,
+    "interaction_failures": 0,
+    "timeout_failures": 0,
+    "tool_format_failures": 0
+  }
+}

@@ -19,9 +19,15 @@ def parse_metadata(config_file):
     domain = task.split("-")[0]
     parts = agent.split("-")
 
-    model = parts[1]
-    size = parts[2].upper()
-    quant = parts[-1]
+    if len(parts) >= 5 and parts[0] == "deepseek" and parts[1] == "r1" and parts[2] == "qwen":
+        model = "deepseek-r1-qwen"
+        size = parts[3].upper()
+        quant = parts[-1]
+    else:
+        model = parts[1]
+        size = parts[2].upper()
+        quant = parts[-1]
+
     if quant == "f16":
         quant = "bf16"
 

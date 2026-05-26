@@ -4,7 +4,7 @@ import yaml
 import compute_metric
 import aggregate_result
 import generate_plots
-import enhanced_plots
+# import enhanced_plots
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
