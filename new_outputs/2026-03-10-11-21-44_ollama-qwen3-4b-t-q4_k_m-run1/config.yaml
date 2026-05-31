@@ -1,25 +1,25 @@
 assignments:
-- agent: ollama-qwen3-4b-t-f16
+- agent: ollama-qwen3-4b-t-q4_k_m
   task: os-std
 concurrency:
   agent:
-    ollama-qwen3-4b-t-f16: 1
+    ollama-qwen3-4b-t-q4_k_m: 1
   task:
     os-std: 1
 definition:
   agent:
-    ollama-qwen3-4b-t-f16:
+    ollama-qwen3-4b-t-q4_k_m:
       module: src.client.agents.HTTPAgent
       parameters:
         body:
           format: json
-          model: hf.co/unsloth/Qwen3-4B-Thinking-2507-GGUF:F16
+          model: hf.co/unsloth/Qwen3-4B-Thinking-2507-GGUF:Q4_K_M
           options:
             temperature: 0
           stream: false
         headers:
           Content-Type: application/json
-        name: ollama-qwen3-4b-t-f16
+        name: ollama-qwen3-4b-t-q4_k_m
         prompter:
           args:
             agent_role: assistant
@@ -112,4 +112,4 @@ definition:
               - answer
               type: object
           type: function
-output: new_outputs/2026-03-11-11-15-57_- ollama-qwen3-4b-t-f16_run1
+output: new_outputs/2026-03-10-11-21-44_- ollama-qwen3-4b-t-q4_k_m-run1

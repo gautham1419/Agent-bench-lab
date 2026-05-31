@@ -112,4 +112,4 @@ definition:
               - answer
               type: object
           type: function
-output: new_outputs/2026-03-10-23-39-27_- ollama-qwen3-4b-t-q8_0_run1
+output: new_outputs/2026-03-10-23-39-27_- ollama-qwen3-4b-t-q8_0-run1

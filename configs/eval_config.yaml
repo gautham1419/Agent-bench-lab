@@ -4,7 +4,7 @@ plots_path: plots
 enhanced_plots_path: enhanced_plots
 
 experiment:
-  runs_to_average: 1
+  runs_to_average: 3
 
 domains:
   - os
