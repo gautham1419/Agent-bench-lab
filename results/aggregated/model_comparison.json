@@ -1,104 +1,98 @@
 {
   "deepseek-r1-qwen": {
-    "success_rate_mean": 0.017719907407407406,
-    "success_rate_std": 0.03756081994923588,
-    "mean_reward_mean": 0.38078703703703703,
-    "mean_reward_std": 0.4599074516810931,
-    "overall_failure_rate_mean": 0.0,
-    "overall_failure_rate_std": 0.0,
-    "agent_failure_rate_mean": 0.0,
-    "agent_failure_rate_std": 0.0,
-    "avg_tool_calls_mean": 0.0,
-    "avg_tool_calls_std": 0.0,
-    "avg_turns_mean": 0.0,
-    "avg_turns_std": 0.0,
-    "interaction_failure_rate_mean": 0.0,
-    "interaction_failure_rate_std": 0.0,
-    "timeout_rate_mean": 0.0,
-    "timeout_rate_std": 0.0,
-    "tool_format_rate_mean": 0.0,
-    "tool_format_rate_std": 0.0,
-    "crash_rate_mean": 0.0,
-    "crash_rate_std": 0.0,
-    "energy_mean": 1486763.5578949589,
-    "energy_std": 990957.8826799121,
-    "cpu_mean": 6.049800827043664,
-    "cpu_std": 0.5973779651654335,
-    "ram_mean": 146.64575180228422,
-    "ram_std": 1.2602925836869925,
-    "gpu_util_mean": 24.41015772466955,
-    "gpu_util_std": 10.68499403045207,
-    "gpu_mem_mean": 8128.721160953025,
-    "gpu_mem_std": 4639.093805592409,
-    "gpu_power_mean": 111.64471374431992,
-    "gpu_power_std": 29.72653084339946
+    "alfworld": {
+      "success_rate": 0.0,
+      "failure_rate": 0.943425,
+      "error_rate": 0.056575,
+      "energy_per_task": 5764.94767
+    },
+    "dbbench": {
+      "success_rate": 0.063518,
+      "failure_rate": 0.88963,
+      "error_rate": 0.046852,
+      "energy_per_task": 4373.566744
+    },
+    "os": {
+      "success_rate": 0.001929,
+      "failure_rate": 0.830247,
+      "error_rate": 0.167824,
+      "energy_per_task": 13139.888052
+    },
+    "webshop": {
+      "success_rate": 0.006667,
+      "failure_rate": 0.943611,
+      "error_rate": 0.049722,
+      "energy_per_task": 10958.5102
+    },
+    "overall_mean": {
+      "success_rate": 0.018029,
+      "failure_rate": 0.901728,
+      "error_rate": 0.080243,
+      "energy_per_task": 8559.228167
+    }
   },
   "ministral3": {
-    "success_rate_mean": 0.24148594121644582,
-    "success_rate_std": 0.28892457752892775,
-    "mean_reward_mean": 0.7780062071516012,
-    "mean_reward_std": 0.33683326132150837,
-    "overall_failure_rate_mean": 0.0,
-    "overall_failure_rate_std": 0.0,
-    "agent_failure_rate_mean": 0.3749260958205913,
-    "agent_failure_rate_std": 0.42577377911216624,
-    "avg_tool_calls_mean": 0.0,
-    "avg_tool_calls_std": 0.0,
-    "avg_turns_mean": 0.0,
-    "avg_turns_std": 0.0,
-    "interaction_failure_rate_mean": 0.0,
-    "interaction_failure_rate_std": 0.0,
-    "timeout_rate_mean": 0.0,
-    "timeout_rate_std": 0.0,
-    "tool_format_rate_mean": 0.0,
-    "tool_format_rate_std": 0.0,
-    "crash_rate_mean": 0.0,
-    "crash_rate_std": 0.0,
-    "energy_mean": 629257.1560724996,
-    "energy_std": 460281.6240409489,
-    "cpu_mean": 5.079157211824543,
-    "cpu_std": 0.7407334024215794,
-    "ram_mean": 376.37792343948087,
-    "ram_std": 225.51926674886823,
-    "gpu_util_mean": 24.9292233885183,
-    "gpu_util_std": 10.956194355057269,
-    "gpu_mem_mean": 12215.854095162265,
-    "gpu_mem_std": 4737.171424903043,
-    "gpu_power_mean": 115.06238097948028,
-    "gpu_power_std": 26.912978002801424
+    "alfworld": {
+      "success_rate": 0.021407,
+      "failure_rate": 0.978593,
+      "error_rate": 0.0,
+      "energy_per_task": 2426.193271
+    },
+    "dbbench": {
+      "success_rate": 0.156296,
+      "failure_rate": 0.832963,
+      "error_rate": 0.010741,
+      "energy_per_task": 4269.534986
+    },
+    "os": {
+      "success_rate": 0.061343,
+      "failure_rate": 0.896219,
+      "error_rate": 0.042438,
+      "energy_per_task": 4668.980001
+    },
+    "webshop": {
+      "success_rate": 0.706666,
+      "failure_rate": 0.288889,
+      "error_rate": 0.004444,
+      "energy_per_task": 3372.559798
+    },
+    "overall_mean": {
+      "success_rate": 0.236428,
+      "failure_rate": 0.749166,
+      "error_rate": 0.014406,
+      "energy_per_task": 3684.317014
+    }
   },
   "qwen3": {
-    "success_rate_mean": 0.3187221797485559,
-    "success_rate_std": 0.20921016730316122,
-    "mean_reward_mean": 0.9044169145378768,
-    "mean_reward_std": 0.16570995258865698,
-    "overall_failure_rate_mean": 0.0,
-    "overall_failure_rate_std": 0.0,
-    "agent_failure_rate_mean": 0.46046763506625893,
-    "agent_failure_rate_std": 0.4040409792851465,
-    "avg_tool_calls_mean": 0.0,
-    "avg_tool_calls_std": 0.0,
-    "avg_turns_mean": 0.0,
-    "avg_turns_std": 0.0,
-    "interaction_failure_rate_mean": 0.0,
-    "interaction_failure_rate_std": 0.0,
-    "timeout_rate_mean": 0.0,
-    "timeout_rate_std": 0.0,
-    "tool_format_rate_mean": 0.0,
-    "tool_format_rate_std": 0.0,
-    "crash_rate_mean": 0.0,
-    "crash_rate_std": 0.0,
-    "energy_mean": 2395902.8489512103,
-    "energy_std": 1964362.7602348318,
-    "cpu_mean": 6.362804893546749,
-    "cpu_std": 1.6850591105848225,
-    "ram_mean": 286.16764616007316,
-    "ram_std": 209.56938714433352,
-    "gpu_util_mean": 59.368440138368875,
-    "gpu_util_std": 21.544587299634763,
-    "gpu_mem_mean": 12910.156362385054,
-    "gpu_mem_std": 3913.4225960428216,
-    "gpu_power_mean": 203.83923456706387,
-    "gpu_power_std": 51.07751917216023
+    "alfworld": {
+      "success_rate": 0.087666,
+      "failure_rate": 0.912334,
+      "error_rate": 0.0,
+      "energy_per_task": 15529.139099
+    },
+    "dbbench": {
+      "success_rate": 0.386667,
+      "failure_rate": 0.611852,
+      "error_rate": 0.001481,
+      "energy_per_task": 9152.236576
+    },
+    "os": {
+      "success_rate": 0.327546,
+      "failure_rate": 0.641975,
+      "error_rate": 0.030478,
+      "energy_per_task": 16944.966491
+    },
+    "webshop": {
+      "success_rate": 0.472778,
+      "failure_rate": 0.52,
+      "error_rate": 0.007222,
+      "energy_per_task": 13444.547529
+    },
+    "overall_mean": {
+      "success_rate": 0.318664,
+      "failure_rate": 0.67154,
+      "error_rate": 0.009795,
+      "energy_per_task": 13767.722424
+    }
   }
 }

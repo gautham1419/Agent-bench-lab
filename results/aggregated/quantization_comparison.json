@@ -1,104 +1,98 @@
 {
   "bf16": {
-    "success_rate_mean": 0.19157046381243628,
-    "success_rate_std": 0.23518691003825046,
-    "mean_reward_mean": 0.7104052386161729,
-    "mean_reward_std": 0.39528872179966895,
-    "overall_failure_rate_mean": 0.0,
-    "overall_failure_rate_std": 0.0,
-    "agent_failure_rate_mean": 0.2811378695208971,
-    "agent_failure_rate_std": 0.39063759341779253,
-    "avg_tool_calls_mean": 0.0,
-    "avg_tool_calls_std": 0.0,
-    "avg_turns_mean": 0.0,
-    "avg_turns_std": 0.0,
-    "interaction_failure_rate_mean": 0.0,
-    "interaction_failure_rate_std": 0.0,
-    "timeout_rate_mean": 0.0,
-    "timeout_rate_std": 0.0,
-    "tool_format_rate_mean": 0.0,
-    "tool_format_rate_std": 0.0,
-    "crash_rate_mean": 0.0,
-    "crash_rate_std": 0.0,
-    "energy_mean": 1912835.1514400414,
-    "energy_std": 1850390.4821659345,
-    "cpu_mean": 5.98881159238691,
-    "cpu_std": 0.9569357734643188,
-    "ram_mean": 283.04812353493463,
-    "ram_std": 208.56423294476912,
-    "gpu_util_mean": 44.70760221545942,
-    "gpu_util_std": 21.613908759724268,
-    "gpu_mem_mean": 14969.818327674855,
-    "gpu_mem_std": 5398.627788760161,
-    "gpu_power_mean": 158.5025238332644,
-    "gpu_power_std": 51.74255569545006
+    "alfworld": {
+      "success_rate": 0.037207,
+      "failure_rate": 0.950561,
+      "error_rate": 0.012232,
+      "energy_per_task": 9871.850918
+    },
+    "dbbench": {
+      "success_rate": 0.206111,
+      "failure_rate": 0.766667,
+      "error_rate": 0.027222,
+      "energy_per_task": 7742.941544
+    },
+    "os": {
+      "success_rate": 0.1277,
+      "failure_rate": 0.767747,
+      "error_rate": 0.104552,
+      "energy_per_task": 14957.216396
+    },
+    "webshop": {
+      "success_rate": 0.382222,
+      "failure_rate": 0.591667,
+      "error_rate": 0.026111,
+      "energy_per_task": 11977.902649
+    },
+    "overall_mean": {
+      "success_rate": 0.18831,
+      "failure_rate": 0.769161,
+      "error_rate": 0.042529,
+      "energy_per_task": 11137.477877
+    }
   },
   "q4_k_m": {
-    "success_rate_mean": 0.1949844971117907,
-    "success_rate_std": 0.2554666998889845,
-    "mean_reward_mean": 0.6785937696719416,
-    "mean_reward_std": 0.41574497470032834,
-    "overall_failure_rate_mean": 0.0,
-    "overall_failure_rate_std": 0.0,
-    "agent_failure_rate_mean": 0.2708256880733945,
-    "agent_failure_rate_std": 0.3953575280225137,
-    "avg_tool_calls_mean": 0.0,
-    "avg_tool_calls_std": 0.0,
-    "avg_turns_mean": 0.0,
-    "avg_turns_std": 0.0,
-    "interaction_failure_rate_mean": 0.0,
-    "interaction_failure_rate_std": 0.0,
-    "timeout_rate_mean": 0.0,
-    "timeout_rate_std": 0.0,
-    "tool_format_rate_mean": 0.0,
-    "tool_format_rate_std": 0.0,
-    "crash_rate_mean": 0.0,
-    "crash_rate_std": 0.0,
-    "energy_mean": 1189359.255206711,
-    "energy_std": 1092362.0606243636,
-    "cpu_mean": 5.6959914753834235,
-    "cpu_std": 1.4881357184394421,
-    "ram_mean": 262.9067719678554,
-    "ram_std": 197.22345843167054,
-    "gpu_util_mean": 28.843998685499752,
-    "gpu_util_std": 21.072898056919787,
-    "gpu_mem_mean": 8043.376342116669,
-    "gpu_mem_std": 2548.732146451809,
-    "gpu_power_mean": 131.51338436701647,
-    "gpu_power_std": 60.514678939327936
+    "alfworld": {
+      "success_rate": 0.036697,
+      "failure_rate": 0.941896,
+      "error_rate": 0.021407,
+      "energy_per_task": 6553.934055
+    },
+    "dbbench": {
+      "success_rate": 0.192778,
+      "failure_rate": 0.788704,
+      "error_rate": 0.018518,
+      "energy_per_task": 4720.058619
+    },
+    "os": {
+      "success_rate": 0.130787,
+      "failure_rate": 0.813658,
+      "error_rate": 0.055556,
+      "energy_per_task": 8398.897066
+    },
+    "webshop": {
+      "success_rate": 0.413333,
+      "failure_rate": 0.567222,
+      "error_rate": 0.019444,
+      "energy_per_task": 7076.620138
+    },
+    "overall_mean": {
+      "success_rate": 0.193399,
+      "failure_rate": 0.77787,
+      "error_rate": 0.028731,
+      "energy_per_task": 6687.37747
+    }
   },
   "q8_0": {
-    "success_rate_mean": 0.19137306744818214,
-    "success_rate_std": 0.2386471003734399,
-    "mean_reward_mean": 0.6742111504384004,
-    "mean_reward_std": 0.4145730809379122,
-    "overall_failure_rate_mean": 0.0,
-    "overall_failure_rate_std": 0.0,
-    "agent_failure_rate_mean": 0.28343017329255865,
-    "agent_failure_rate_std": 0.39434682920596287,
-    "avg_tool_calls_mean": 0.0,
-    "avg_tool_calls_std": 0.0,
-    "avg_turns_mean": 0.0,
-    "avg_turns_std": 0.0,
-    "interaction_failure_rate_mean": 0.0,
-    "interaction_failure_rate_std": 0.0,
-    "timeout_rate_mean": 0.0,
-    "timeout_rate_std": 0.0,
-    "tool_format_rate_mean": 0.0,
-    "tool_format_rate_std": 0.0,
-    "crash_rate_mean": 0.0,
-    "crash_rate_std": 0.0,
-    "energy_mean": 1409729.156271916,
-    "energy_std": 1311986.586472082,
-    "cpu_mean": 5.806959864644622,
-    "cpu_std": 1.2111749329432522,
-    "ram_mean": 263.23642589904824,
-    "ram_std": 197.25956706980145,
-    "gpu_util_mean": 35.15622035059756,
-    "gpu_util_std": 21.502937652644054,
-    "gpu_mem_mean": 10241.53694870882,
-    "gpu_mem_std": 3454.0609110236323,
-    "gpu_power_mean": 140.53042109058322,
-    "gpu_power_std": 54.44517554609826
+    "alfworld": {
+      "success_rate": 0.035168,
+      "failure_rate": 0.941896,
+      "error_rate": 0.022936,
+      "energy_per_task": 7294.495067
+    },
+    "dbbench": {
+      "success_rate": 0.207592,
+      "failure_rate": 0.779074,
+      "error_rate": 0.013333,
+      "energy_per_task": 5332.338143
+    },
+    "os": {
+      "success_rate": 0.13233,
+      "failure_rate": 0.787037,
+      "error_rate": 0.080633,
+      "energy_per_task": 11397.721081
+    },
+    "webshop": {
+      "success_rate": 0.390555,
+      "failure_rate": 0.593611,
+      "error_rate": 0.015833,
+      "energy_per_task": 8721.09474
+    },
+    "overall_mean": {
+      "success_rate": 0.191411,
+      "failure_rate": 0.775405,
+      "error_rate": 0.033184,
+      "energy_per_task": 8186.412258
+    }
   }
 }

@@ -3,7 +3,7 @@ import yaml
 
 import compute_metric
 import aggregate_result
-import generate_plots
+#import generate_plots
 # import enhanced_plots
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -22,8 +22,8 @@ def run_pipeline():
 
     outputs_path = PROJECT_ROOT / config["outputs_path"]
     results_path = PROJECT_ROOT / config["results_path"]
-    plots_path = PROJECT_ROOT / config["plots_path"]
-    enhanced_plots_path = PROJECT_ROOT / config["enhanced_plots_path"]
+    #plots_path = PROJECT_ROOT / config["plots_path"]
+    #enhanced_plots_path = PROJECT_ROOT / config["enhanced_plots_path"]
 
     runs_to_average = config["experiment"]["runs_to_average"]
 
@@ -41,8 +41,8 @@ def run_pipeline():
     print("\n2. Aggregating Runs")
     aggregate_result.run(results_path, runs_to_average)
 
-    print("\n3. Generating Plots")
-    generate_plots.run(results_path, plots_path)
+    #print("\n3. Generating Plots")
+    #generate_plots.run(results_path, plots_path)
     #enhanced_plots.run(results_path, enhanced_plots_path)
     print("\nPipeline completed.\n")
 
