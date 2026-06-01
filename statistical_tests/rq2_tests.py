@@ -464,9 +464,9 @@ def test_bootstrap_ci(df):
 # ─────────────────────────────────────────────────────────────────────────
 def run_all_rq2():
     """Run all RQ2 tests and save results."""
-    print("\n" + "█" * 72)
+    print("\n" + "=" * 72)
     print("  RQ2: Structural Composition of Execution Failures")
-    print("█" * 72)
+    print("=" * 72)
 
     df = load_run_data()
     all_results = {}

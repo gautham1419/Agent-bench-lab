@@ -21,9 +21,9 @@ from data_loader import load_run_data, ensure_output_dir, save_results
 def main():
     target = sys.argv[1].lower() if len(sys.argv) > 1 else "all"
 
-    print("╔" + "═" * 70 + "╗")
-    print("║  Agent-Bench Quantization Study — Statistical Tests Runner       ║")
-    print("╚" + "═" * 70 + "╝")
+    print("+" + "=" * 70 + "+")
+    print("|  Agent-Bench Quantization Study -- Statistical Tests Runner       |")
+    print("+" + "=" * 70 + "+")
 
     # Verify data loads
     df = load_run_data()
@@ -60,9 +60,9 @@ def main():
 
     elapsed = time.time() - start
 
-    print("\n" + "╔" + "═" * 70 + "╗")
-    print(f"║  All tests completed in {elapsed:.1f}s".ljust(71) + "║")
-    print("╚" + "═" * 70 + "╝")
+    print("\n" + "+" + "=" * 70 + "+")
+    print(f"|  All tests completed in {elapsed:.1f}s".ljust(71) + "|")
+    print("+" + "=" * 70 + "+")
 
     # Save combined results
     if len(all_results) > 1:

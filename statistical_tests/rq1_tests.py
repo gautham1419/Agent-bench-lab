@@ -366,9 +366,9 @@ def test_cmh(df):
 # ─────────────────────────────────────────────────────────────────────────
 def run_all_rq1():
     """Run all RQ1 tests and save results."""
-    print("\n" + "█" * 72)
-    print("  RQ1: Model Scale & Quantization → Task Success Rates")
-    print("█" * 72)
+    print("\n" + "=" * 72)
+    print("  RQ1: Model Scale & Quantization -> Task Success Rates")
+    print("=" * 72)
 
     df = load_run_data()
     all_results = {}

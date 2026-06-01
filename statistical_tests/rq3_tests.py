@@ -473,9 +473,9 @@ def test_relative_change(df):
 # ─────────────────────────────────────────────────────────────────────────
 def run_all_rq3():
     """Run all RQ3 tests and save results."""
-    print("\n" + "█" * 72)
+    print("\n" + "=" * 72)
     print("  RQ3: Task Effectiveness vs. Computational Efficiency Trade-off")
-    print("█" * 72)
+    print("=" * 72)
 
     df = load_run_data()
     all_results = {}
