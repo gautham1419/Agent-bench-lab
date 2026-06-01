@@ -242,3 +242,40 @@ The Spearman correlation between success rate and energy per task is non-signifi
 | Quantization saves 27–38% energy | Wilcoxon p < 10⁻⁴ for both levels; r > 0.79 | Very strong |
 | Zero configurations exhibit lose-lose outcomes | Quadrant analysis: 0/24 for both q8\_0 and q4\_k\_m | Descriptive, robust |
 | All Pareto-optimal configs are quantized | 4/4 Pareto-optimal use q4\_k\_m or q8\_0 | Descriptive |
+
+
+## Summary in simpler terms
+
+### RQ1 — Does making the model smaller (fewer bits) hurt its ability to solve tasks?
+**Answer**: No. Compressing a model from full precision (bf16) to 8-bit (q8_0) or 4-bit (q4_k_m) does not reduce how often it successfully completes tasks. The success rates are virtually identical: 18.8% vs 19.1% vs 19.3% — a difference of less than half a percent, which is just random noise.
+
+What actually matters is which model family you pick. Almost half (48.8%) of all the performance differences come from whether you're using deepseek, ministral, or qwen — not from how compressed the model is. For example, qwen3 at 4B parameters solves 43% of tasks, while deepseek at 7B (almost double the size!) only solves 3.3%. Architecture/design of the model matters far more than raw size or precision.
+
+The task domain also matters a lot — webshop tasks are much easier than alfworld tasks regardless of model.
+
+In simple terms: Think of quantization like compressing a JPEG photo. Our tests show that even at aggressive compression levels, the "image quality" (task performance) stays the same.
+
+### RQ2 — When models fail, do they fail differently after being compressed?
+**Answer**: No, not really. The types of failures (timing out, wrong format, wrong action, system crashes, etc.) stay in roughly the same proportions regardless of quantization. We tested this five different ways and got the same answer.
+
+The only exception is system/infrastructure errors: full-precision (bf16) models crash more often than compressed ones. This makes sense — bf16 models use more memory and compute, so they're more likely to hit hardware limits. But this is a machine-resource issue, not a "the model got dumber" issue.
+
+The bootstrap confidence intervals (think of them as error bars) overlap completely across all quantization levels for every failure type — meaning the differences could easily be due to random chance.
+
+In simple terms: Compressing the model doesn't change how it fails. It doesn't start making different kinds of mistakes — it just makes the same kinds of mistakes at the same rates.
+
+### RQ3 — Is there a trade-off? Do you sacrifice performance to save energy?
+**Answer**: No trade-off — it's basically a free lunch. Quantization saves a LOT of energy (27–38% less electricity) while performance stays the same. This is statistically very strong evidence (p < 0.0001 for energy savings, with large effect sizes).
+
+The "quadrant analysis" paints the picture clearly:
+
+67% of configurations at q8_0 are win-win (same or better performance AND less energy)
+0% of configurations are "lose-lose" (worse performance AND more energy)
+The remaining ~30% are "acceptable trade-offs" (tiny performance dip but big energy save)
+When we looked at which model configurations are the "best deals" overall (Pareto-optimal — meaning nothing else beats them on BOTH performance and energy), all 4 winning configurations are quantized models. No full-precision model makes the best-deal list.
+
+Also, spending more energy does NOT buy you more success. The correlation between energy and performance is basically zero (ρ = 0.045). Some models burn lots of energy and still fail; others use little energy and succeed a lot.
+
+In simple terms: Quantization is like switching from a gas-guzzler to a hybrid car — you get the same performance with 27–38% less fuel, and there's no downside.
+
+### The bottom line across all three RQs: You can safely compress these LLMs to 4-bit precision and expect (1) the same success rate, (2) the same failure patterns, and (3) major energy savings. The thing that actually drives performance is which model architecture you choose and which task domain you're working on.
