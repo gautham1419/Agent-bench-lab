@@ -54,8 +54,8 @@ def test_twoway_anova(df):
         if len(vals) >= 3:
             stat, p = stats.shapiro(vals)
             normality_results.append({"size": sz, "quant": q, "W": stat, "p": p, "n": len(vals)})
-            flag = " ✗" if p < 0.05 else " ✓"
-            print(f"    {sz:>5} × {q:<8}  W={stat:.4f}  p={p:.4f}  n={len(vals)}{flag}")
+            flag = " FAIL" if p < 0.05 else " OK"
+            print(f"    {sz:>5} x {q:<8}  W={stat:.4f}  p={p:.4f}  n={len(vals)}{flag}")
     results["shapiro_wilk"] = normality_results
 
     # 2. Levene's test for homogeneity of variance
@@ -165,7 +165,7 @@ def test_kruskal_wallis(df):
 def test_lmm(df):
     """
     Linear Mixed-Effects Model.
-    Fixed: quant, size_num, quant:size_num, domain
+    Fixed: C(size_num) * C(quant, Treatment('bf16')), domain
     Random: (1 | model)
     """
     print(f"\n{SEPARATOR}")
@@ -178,7 +178,7 @@ def test_lmm(df):
     df_lmm["quant"] = pd.Categorical(df_lmm["quant"], categories=["bf16", "q8_0", "q4_k_m"])
 
     # Model with quant as categorical, size as numeric, domain as fixed, model as random
-    formula = "success_rate ~ C(quant, Treatment('bf16')) * size_num + C(domain)"
+    formula = "success_rate ~ C(size_num) * C(quant, Treatment('bf16')) + C(domain)"
 
     print(f"\n  Formula: {formula}")
     print(f"  Random effect: (1 | model)")
@@ -222,7 +222,7 @@ def test_lmm(df):
 
     # Simpler model without interaction for comparison
     print(f"\n  --- Reduced Model (no interaction) ---")
-    formula2 = "success_rate ~ C(quant, Treatment('bf16')) + size_num + C(domain)"
+    formula2 = "success_rate ~ C(size_num) + C(quant, Treatment('bf16')) + C(domain)"
     try:
         lmm2 = smf.mixedlm(formula2, data=df_lmm, groups=df_lmm["model"])
         lmm2_fit = lmm2.fit(reml=False)  # ML for model comparison
@@ -347,7 +347,7 @@ def test_cmh(df):
                 cmh2 = st2.test_null_odds()
                 print(f"    Statistic = {cmh2.statistic:.4f}")
                 print(f"    p-value   = {cmh2.pvalue:.6f}")
-                oddsratio = st2.oddsratio_pooled()
+                oddsratio = st2.oddsratio_pooled
                 print(f"    Pooled OR = {oddsratio:.4f}")
                 results[f"cmh_bf16_vs_{q_compare}"] = {
                     "statistic": cmh2.statistic,
