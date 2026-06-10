@@ -38,9 +38,9 @@ SEPARATOR = "=" * 72
 # Test 1: Two-Way Factorial ANOVA
 # ─────────────────────────────────────────────────────────────────────────
 def test_twoway_anova(df):
-    """Two-Way ANOVA: Size × Quantization on success_rate."""
+    """Two-Way ANOVA: Size x Quantization on success_rate."""
     print(f"\n{SEPARATOR}")
-    print("  TEST 1: Two-Way Factorial ANOVA (Size × Quantization)")
+    print("  TEST 1: Two-Way Factorial ANOVA (Size x Quantization)")
     print(SEPARATOR)
 
     results = {}
@@ -82,7 +82,7 @@ def test_twoway_anova(df):
         if factor != "Residual":
             ss_factor = anova_raw.loc[factor, "sum_sq"]
             eta_sq = ss_factor / (ss_factor + ss_residual)
-            print(f"    Partial η² for {factor}: {eta_sq:.4f}")
+            print(f"    Partial eta^2 for {factor}: {eta_sq:.4f}")
 
     print("\n  --- ANOVA on arcsine-sqrt transformed success_rate ---")
     model_asin = smf.ols("success_asin ~ C(size) * C(quant)", data=df_anova).fit()
@@ -118,10 +118,9 @@ def test_kruskal_wallis(df):
     quant_groups = [grp["success_rate"].dropna().values for _, grp in df.groupby("quant")]
     kw_stat, kw_p = stats.kruskal(*quant_groups)
     n_total = sum(len(g) for g in quant_groups)
-    k = len(quant_groups)
-    epsilon_sq = (kw_stat - k + 1) / (n_total - k)  # effect size
+    epsilon_sq = kw_stat / (n_total - 1)  # effect size
     print(f"\n  Grouping by Quantization:")
-    print(f"    H = {kw_stat:.4f},  p = {kw_p:.6f},  ε² = {epsilon_sq:.4f}")
+    print(f"    H = {kw_stat:.4f},  p = {kw_p:.6f},  e^2 = {epsilon_sq:.4f}")
     results["quant"] = {"H": kw_stat, "p": kw_p, "epsilon_sq": epsilon_sq}
 
     if HAS_POSTHOCS and kw_p < 0.05:
@@ -134,10 +133,9 @@ def test_kruskal_wallis(df):
     size_groups = [grp["success_rate"].dropna().values for _, grp in df.groupby("size")]
     kw_stat, kw_p = stats.kruskal(*size_groups)
     n_total = sum(len(g) for g in size_groups)
-    k = len(size_groups)
-    epsilon_sq = (kw_stat - k + 1) / (n_total - k)
+    epsilon_sq = kw_stat / (n_total - 1)
     print(f"\n  Grouping by Size:")
-    print(f"    H = {kw_stat:.4f},  p = {kw_p:.6f},  ε² = {epsilon_sq:.4f}")
+    print(f"    H = {kw_stat:.4f},  p = {kw_p:.6f},  e^2 = {epsilon_sq:.4f}")
     results["size"] = {"H": kw_stat, "p": kw_p, "epsilon_sq": epsilon_sq}
 
     if HAS_POSTHOCS and kw_p < 0.05:
@@ -150,10 +148,9 @@ def test_kruskal_wallis(df):
     model_groups = [grp["success_rate"].dropna().values for _, grp in df.groupby("model")]
     kw_stat, kw_p = stats.kruskal(*model_groups)
     n_total = sum(len(g) for g in model_groups)
-    k = len(model_groups)
-    epsilon_sq = (kw_stat - k + 1) / (n_total - k)
+    epsilon_sq = kw_stat / (n_total - 1)
     print(f"\n  Grouping by Model Family:")
-    print(f"    H = {kw_stat:.4f},  p = {kw_p:.6f},  ε² = {epsilon_sq:.4f}")
+    print(f"    H = {kw_stat:.4f},  p = {kw_p:.6f},  e^2 = {epsilon_sq:.4f}")
     results["model"] = {"H": kw_stat, "p": kw_p, "epsilon_sq": epsilon_sq}
 
     return results
@@ -191,9 +188,13 @@ def test_lmm(df):
 
         # Extract key results
         results["converged"] = lmm_fit.converged
-        results["aic"] = lmm_fit.aic
-        results["bic"] = lmm_fit.bic
         results["log_likelihood"] = lmm_fit.llf
+
+        # AIC/BIC are not defined for REML fits; store only if valid
+        import math
+        if not math.isnan(lmm_fit.aic):
+            results["aic"] = lmm_fit.aic
+            results["bic"] = lmm_fit.bic
 
         # Fixed effects
         fe = lmm_fit.fe_params
@@ -232,7 +233,7 @@ def test_lmm(df):
         df_diff = lmm_full.df_modelwc - lmm2_fit.df_modelwc
         lr_p = 1 - stats.chi2.cdf(lr_stat, max(df_diff, 1))
         print(f"  Likelihood Ratio Test (interaction term):")
-        print(f"    χ² = {lr_stat:.4f}, df = {df_diff}, p = {lr_p:.6f}")
+        print(f"    chi2 = {lr_stat:.4f}, df = {df_diff}, p = {lr_p:.6f}")
         results["lr_test_interaction"] = {"chi2": lr_stat, "df": int(df_diff), "p": lr_p}
     except Exception as e:
         print(f"  [NOTE] Model comparison failed: {e}")
@@ -246,14 +247,14 @@ def test_lmm(df):
 def test_spearman(df):
     """Spearman correlation between parameter count and success_rate."""
     print(f"\n{SEPARATOR}")
-    print("  TEST 4: Spearman Rank Correlation (Size → Success Rate)")
+    print("  TEST 4: Spearman Rank Correlation (Size -> Success Rate)")
     print(SEPARATOR)
 
     results = {}
 
     # Overall
     rho, p = stats.spearmanr(df["size_num"], df["success_rate"])
-    print(f"\n  Overall:  ρ = {rho:.4f},  p = {p:.6f},  n = {len(df)}")
+    print(f"\n  Overall:  rho = {rho:.4f},  p = {p:.6f},  n = {len(df)}")
     results["overall"] = {"rho": rho, "p": p, "n": len(df)}
 
     # Stratified by quantization level
@@ -261,7 +262,7 @@ def test_spearman(df):
     for quant_level in ["bf16", "q8_0", "q4_k_m"]:
         sub = df[df["quant"] == quant_level]
         rho, p = stats.spearmanr(sub["size_num"], sub["success_rate"])
-        print(f"    {quant_level:<8}:  ρ = {rho:.4f},  p = {p:.6f},  n = {len(sub)}")
+        print(f"    {quant_level:<8}:  rho = {rho:.4f},  p = {p:.6f},  n = {len(sub)}")
         results[quant_level] = {"rho": rho, "p": p, "n": len(sub)}
 
     # Stratified by domain
@@ -269,7 +270,7 @@ def test_spearman(df):
     for domain in df["domain"].unique():
         sub = df[df["domain"] == domain]
         rho, p = stats.spearmanr(sub["size_num"], sub["success_rate"])
-        print(f"    {domain:<10}:  ρ = {rho:.4f},  p = {p:.6f},  n = {len(sub)}")
+        print(f"    {domain:<10}:  rho = {rho:.4f},  p = {p:.6f},  n = {len(sub)}")
         results[f"domain_{domain}"] = {"rho": rho, "p": p, "n": len(sub)}
 
     return results
