@@ -118,7 +118,9 @@ def test_kruskal_wallis(df):
     quant_groups = [grp["success_rate"].dropna().values for _, grp in df.groupby("quant")]
     kw_stat, kw_p = stats.kruskal(*quant_groups)
     n_total = sum(len(g) for g in quant_groups)
-    epsilon_sq = kw_stat / (n_total - 1)  # effect size
+    k = len(quant_groups)  # number of groups
+    epsilon_sq = max(0.0, (kw_stat - k + 1)) / (n_total - k)
+    # epsilon_sq = kw_stat / (n_total - 1)  # effect size
     print(f"\n  Grouping by Quantization:")
     print(f"    H = {kw_stat:.4f},  p = {kw_p:.6f},  e^2 = {epsilon_sq:.4f}")
     results["quant"] = {"H": kw_stat, "p": kw_p, "epsilon_sq": epsilon_sq}
@@ -133,7 +135,9 @@ def test_kruskal_wallis(df):
     size_groups = [grp["success_rate"].dropna().values for _, grp in df.groupby("size")]
     kw_stat, kw_p = stats.kruskal(*size_groups)
     n_total = sum(len(g) for g in size_groups)
-    epsilon_sq = kw_stat / (n_total - 1)
+    k = len(size_groups)  # number of groups
+    epsilon_sq = max(0.0, (kw_stat - k + 1)) / (n_total - k)
+   # epsilon_sq = kw_stat / (n_total - 1)
     print(f"\n  Grouping by Size:")
     print(f"    H = {kw_stat:.4f},  p = {kw_p:.6f},  e^2 = {epsilon_sq:.4f}")
     results["size"] = {"H": kw_stat, "p": kw_p, "epsilon_sq": epsilon_sq}
@@ -148,7 +152,9 @@ def test_kruskal_wallis(df):
     model_groups = [grp["success_rate"].dropna().values for _, grp in df.groupby("model")]
     kw_stat, kw_p = stats.kruskal(*model_groups)
     n_total = sum(len(g) for g in model_groups)
-    epsilon_sq = kw_stat / (n_total - 1)
+    k = len(model_groups)  # number of groups
+    epsilon_sq = max(0.0, (kw_stat - k + 1)) / (n_total - k)
+    #epsilon_sq = kw_stat / (n_total - 1)
     print(f"\n  Grouping by Model Family:")
     print(f"    H = {kw_stat:.4f},  p = {kw_p:.6f},  e^2 = {epsilon_sq:.4f}")
     results["model"] = {"H": kw_stat, "p": kw_p, "epsilon_sq": epsilon_sq}
@@ -363,6 +369,154 @@ def test_cmh(df):
 
 
 # ─────────────────────────────────────────────────────────────────────────
+# Test 6: Supplementary Metrics Analysis
+# ─────────────────────────────────────────────────────────────────────────
+def test_supplementary_metrics(df):
+    """
+    Run LMM, Kruskal-Wallis, and Spearman tests for supplementary metrics:
+    mean_reward, avg_turns, and completion_rate.
+    """
+    import math
+    print(f"\n{SEPARATOR}")
+    print("  TEST 6: Supplementary Metrics (LMM, KW, Spearman)")
+    print(SEPARATOR)
+
+    metrics = ["mean_reward", "avg_turns", "completion_rate"]
+    results = {}
+
+    for metric in metrics:
+        print(f"\n\n==================== Analyzing Metric: {metric} ====================")
+        metric_results = {}
+
+        # 1. Linear Mixed-Effects Model (LMM)
+        print(f"\n  --- LMM for {metric} ---")
+        df_lmm = df.dropna(subset=[metric]).copy()
+        df_lmm["quant"] = pd.Categorical(df_lmm["quant"], categories=["bf16", "q8_0", "q4_k_m"])
+        formula = f"{metric} ~ C(size_num) * C(quant, Treatment('bf16')) + C(domain)"
+        
+        lmm_results = {}
+        try:
+            lmm = smf.mixedlm(formula, data=df_lmm, groups=df_lmm["model"])
+            lmm_fit = lmm.fit(reml=True)
+            print(lmm_fit.summary())
+
+            lmm_results["converged"] = bool(lmm_fit.converged)
+            lmm_results["log_likelihood"] = float(lmm_fit.llf)
+            if not math.isnan(lmm_fit.aic):
+                lmm_results["aic"] = float(lmm_fit.aic)
+                lmm_results["bic"] = float(lmm_fit.bic)
+
+            fe = lmm_fit.fe_params
+            pvals = lmm_fit.pvalues
+            lmm_results["fixed_effects"] = {k: {"coef": float(fe[k]), "p": float(pvals[k])} for k in fe.index}
+
+            re_var = float(lmm_fit.cov_re.iloc[0, 0])
+            resid_var = float(lmm_fit.scale)
+            icc = re_var / (re_var + resid_var)
+            lmm_results["random_effects"] = {"model_var": re_var, "resid_var": resid_var, "icc": icc}
+
+            # Simpler model without interaction for LRT
+            formula_reduced = f"{metric} ~ C(size_num) + C(quant, Treatment('bf16')) + C(domain)"
+            lmm_reduced = smf.mixedlm(formula_reduced, data=df_lmm, groups=df_lmm["model"])
+            lmm_reduced_fit = lmm_reduced.fit(reml=False)
+            lmm_full_ml = smf.mixedlm(formula, data=df_lmm, groups=df_lmm["model"]).fit(reml=False)
+
+            lr_stat = -2 * (lmm_reduced_fit.llf - lmm_full_ml.llf)
+            df_diff = lmm_full_ml.df_modelwc - lmm_reduced_fit.df_modelwc
+            lr_p = 1 - stats.chi2.cdf(lr_stat, max(df_diff, 1))
+            lmm_results["lr_test_interaction"] = {"chi2": float(lr_stat), "df": int(df_diff), "p": float(lr_p)}
+            print(f"\n  Likelihood Ratio Test (interaction term): chi2 = {lr_stat:.4f}, df = {df_diff}, p = {lr_p:.6f}")
+        except Exception as e:
+            print(f"  [ERROR] LMM failed for {metric}: {e}")
+            lmm_results["error"] = str(e)
+        
+        metric_results["lmm"] = lmm_results
+
+        # 2. Kruskal-Wallis H Test
+        print(f"\n  --- Kruskal-Wallis H Test for {metric} ---")
+        kw_results = {}
+
+        # By quantization level
+        quant_groups = [grp[metric].dropna().values for _, grp in df.groupby("quant")]
+        if len(quant_groups) >= 2:
+            kw_stat, kw_p = stats.kruskal(*quant_groups)
+            n_total = sum(len(g) for g in quant_groups)
+            k = len(quant_groups)  # number of groups
+            epsilon_sq = max(0.0, (kw_stat - k + 1)) / (n_total - k)
+            #epsilon_sq = kw_stat / (n_total - 1) if n_total > 1 else 0
+            print(f"    Grouping by Quantization: H = {kw_stat:.4f}, p = {kw_p:.6f}, e^2 = {epsilon_sq:.4f}")
+            kw_results["quant"] = {"H": float(kw_stat), "p": float(kw_p), "epsilon_sq": float(epsilon_sq)}
+
+            if HAS_POSTHOCS and kw_p < 0.05:
+                print("      Post-hoc (Dunn's test with Bonferroni):")
+                dunn = sp.posthoc_dunn(df, val_col=metric, group_col="quant", p_adjust="bonferroni")
+                print(dunn.to_string())
+                kw_results["quant_dunn"] = dunn.to_dict()
+
+        # By model size
+        size_groups = [grp[metric].dropna().values for _, grp in df.groupby("size")]
+        if len(size_groups) >= 2:
+            kw_stat, kw_p = stats.kruskal(*size_groups)
+            n_total = sum(len(g) for g in size_groups)
+            k = len(size_groups)  # number of groups
+            epsilon_sq = max(0.0, (kw_stat - k + 1)) / (n_total - k)
+            #epsilon_sq = kw_stat / (n_total - 1) if n_total > 1 else 0
+            print(f"    Grouping by Size: H = {kw_stat:.4f}, p = {kw_p:.6f}, e^2 = {epsilon_sq:.4f}")
+            kw_results["size"] = {"H": float(kw_stat), "p": float(kw_p), "epsilon_sq": float(epsilon_sq)}
+
+            if HAS_POSTHOCS and kw_p < 0.05:
+                print("      Post-hoc (Dunn's test with Bonferroni):")
+                dunn = sp.posthoc_dunn(df, val_col=metric, group_col="size", p_adjust="bonferroni")
+                print(dunn.to_string())
+                kw_results["size_dunn"] = dunn.to_dict()
+
+        # By model family
+        model_groups = [grp[metric].dropna().values for _, grp in df.groupby("model")]
+        if len(model_groups) >= 2:
+            kw_stat, kw_p = stats.kruskal(*model_groups)
+            n_total = sum(len(g) for g in model_groups)
+            k = len(model_groups)  # number of groups
+            epsilon_sq = max(0.0, (kw_stat - k + 1)) / (n_total - k)
+            #epsilon_sq = kw_stat / (n_total - 1) if n_total > 1 else 0
+            print(f"    Grouping by Model Family: H = {kw_stat:.4f}, p = {kw_p:.6f}, e^2 = {epsilon_sq:.4f}")
+            kw_results["model"] = {"H": float(kw_stat), "p": float(kw_p), "epsilon_sq": float(epsilon_sq)}
+
+        metric_results["kruskal_wallis"] = kw_results
+
+        # 3. Spearman Rank Correlation
+        print(f"\n  --- Spearman Rank Correlation for {metric} ---")
+        spearman_results = {}
+        df_clean = df.dropna(subset=["size_num", metric])
+        if len(df_clean) >= 2:
+            rho, p = stats.spearmanr(df_clean["size_num"], df_clean[metric])
+            print(f"    Overall: rho = {rho:.4f}, p = {p:.6f}, n = {len(df_clean)}")
+            spearman_results["overall"] = {"rho": float(rho), "p": float(p), "n": int(len(df_clean))}
+
+            # Stratified by quantization level
+            print("    Stratified by Quantization:")
+            for quant_level in ["bf16", "q8_0", "q4_k_m"]:
+                sub = df_clean[df_clean["quant"] == quant_level]
+                if len(sub) >= 2:
+                    rho_q, p_q = stats.spearmanr(sub["size_num"], sub[metric])
+                    print(f"      {quant_level:<8}: rho = {rho_q:.4f}, p = {p_q:.6f}, n = {len(sub)}")
+                    spearman_results[quant_level] = {"rho": float(rho_q), "p": float(p_q), "n": int(len(sub))}
+
+            # Stratified by domain
+            print("    Stratified by Domain:")
+            for domain in df_clean["domain"].unique():
+                sub = df_clean[df_clean["domain"] == domain]
+                if len(sub) >= 2:
+                    rho_d, p_d = stats.spearmanr(sub["size_num"], sub[metric])
+                    print(f"      {domain:<10}: rho = {rho_d:.4f}, p = {p_d:.6f}, n = {len(sub)}")
+                    spearman_results[f"domain_{domain}"] = {"rho": float(rho_d), "p": float(p_d), "n": int(len(sub))}
+
+        metric_results["spearman"] = spearman_results
+        results[metric] = metric_results
+
+    return results
+
+
+# ─────────────────────────────────────────────────────────────────────────
 # Main
 # ─────────────────────────────────────────────────────────────────────────
 def run_all_rq1():
@@ -379,6 +533,7 @@ def run_all_rq1():
     all_results["test3_lmm"] = test_lmm(df)
     all_results["test4_spearman"] = test_spearman(df)
     all_results["test5_cmh"] = test_cmh(df)
+    all_results["supplementary_metrics"] = test_supplementary_metrics(df)
 
     save_results(all_results, "rq1_results.json")
     return all_results
