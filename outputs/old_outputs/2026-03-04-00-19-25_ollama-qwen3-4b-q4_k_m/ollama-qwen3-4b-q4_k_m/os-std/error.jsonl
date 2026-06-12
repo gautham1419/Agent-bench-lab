@@ -1,4 +1,0 @@
-{"index": 143, "error": "INTERACT_FAILED", "info": "{\"message\":\"session not found\"}\n", "output": null, "time": {"timestamp": 1772563825956, "str": "2026-03-04 00:20:25"}}
-{"index": 142, "error": "INTERACT_FAILED", "info": "{\"message\":\"session not found\"}\n", "output": null, "time": {"timestamp": 1772563884509, "str": "2026-03-04 00:21:24"}}
-{"index": 141, "error": "INTERACT_FAILED", "info": "{\"message\":\"session not found\"}\n", "output": null, "time": {"timestamp": 1772563951412, "str": "2026-03-04 00:22:31"}}
-{"index": 140, "error": "NETWORK_ERROR", "info": "HTTPConnectionPool(host='localhost', port=5020): Max retries exceeded with url: /api/interact (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f7859ff1f60>: Failed to establish a new connection: [Errno 111] Connection refused'))", "output": null, "time": {"timestamp": 1772564017422, "str": "2026-03-04 00:23:37"}}
