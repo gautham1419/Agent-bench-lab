@@ -1,0 +1,19 @@
+{
+  "total_tasks": 300,
+  "runs_completed": 298,
+  "runs_crashed": 2,
+  "successes": 138,
+  "task_success_rate": 0.46,
+  "completed_failure_rate": 0.5333333333333333,
+  "agent_crash_rate": 0.006666666666666667,
+  "status_breakdown": {
+    "completed": 270,
+    "task limit reached": 28
+  },
+  "error_breakdown": {
+    "AGENT_FAILED": 2
+  },
+  "sql_execution_validity_rate": 0.571992110453649,
+  "tasks_with_sql_errors": 50,
+  "recovery_rate": 0.08
+}

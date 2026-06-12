@@ -1,0 +1,30 @@
+{
+  "total_tasks": 144,
+  "runs_completed": 143,
+  "runs_crashed": 1,
+  "successes": 3,
+  "task_success_rate": 0.020833333333333332,
+  "completed_failure_rate": 0.9722222222222222,
+  "agent_crash_rate": 0.006944444444444444,
+  "status_breakdown": {
+    "task error": 95,
+    "completed": 47,
+    "task limit reached": 1
+  },
+  "error_breakdown": {
+    "AGENT_FAILED": 1
+  },
+  "tool_format_violation_rate": 0.0,
+  "avg_turns_with_toolcalls_per_completed_task": 1.6853146853146854,
+  "avg_total_tool_calls_per_completed_task": 1.6853146853146854,
+  "avg_bash_calls_per_completed_task": 1.1888111888111887,
+  "avg_answer_calls_per_completed_task": 0.46153846153846156,
+  "avg_finish_calls_per_completed_task": 0.03496503496503497,
+  "command_validity_rate": 0.4764705882352941,
+  "tasks_with_command_errors": 14,
+  "recovery_rate": 0.0,
+  "avg_prompt_tokens_per_completed_task": 0.0,
+  "avg_completion_tokens_per_completed_task": 0.0,
+  "avg_total_tokens_per_completed_task": 0.0,
+  "avg_latency_sec_per_completed_task": null
+}

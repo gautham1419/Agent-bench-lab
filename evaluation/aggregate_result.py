@@ -174,8 +174,6 @@ def collect_run_averages(results_dir, runs_to_average):
         if not run_files:
             continue
 
-        print(f"Using {len(run_files)} runs: {[f.name for f in run_files]}")
-
         avg_metrics, num_runs = average_metrics(run_files)
 
         parts = domain_folder.relative_to(runs_dir).parts
@@ -201,8 +199,6 @@ def collect_run_averages(results_dir, runs_to_average):
 
         with open(avg_file, "w") as f:
             json.dump(avg_data, f, indent=2)
-
-        print("Saved:", avg_file)
 
         record = {
             "model": model,

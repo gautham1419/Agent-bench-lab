@@ -1,7 +1,7 @@
 outputs_path: new_outputs
 results_path: results
-plots_path: plots
-enhanced_plots_path: enhanced_plots
+plots_path: results/rq_plots
+domain_plots_path: results/domain_plots
 
 experiment:
   runs_to_average: 3
