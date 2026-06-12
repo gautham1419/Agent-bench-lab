@@ -9,13 +9,15 @@ Usage:
     python run_all_tests.py rq1      # Run only RQ1
     python run_all_tests.py rq2      # Run only RQ2
     python run_all_tests.py rq3      # Run only RQ3
+    python run_all_tests.py tost       # Run TOST equivalence analysis
+    python run_all_tests.py deployment # Run operational deployment metrics
+    python run_all_tests.py behavior   # Run behavioral consistency analysis
 """
 
 import sys
 import time
-from pathlib import Path
 
-from data_loader import load_run_data, ensure_output_dir, save_results
+from data_loader import ensure_output_dir, load_run_data, save_results
 
 
 def main():
@@ -29,7 +31,9 @@ def main():
     df = load_run_data()
     print(f"\n  Data loaded: {len(df)} run-level observations")
     print(f"  Models: {sorted(df['model'].unique())}")
-    print(f"  Sizes:  {sorted(df['size'].unique(), key=lambda x: float(x.replace('B','')))}")
+    print(
+        f"  Sizes:  {sorted(df['size'].unique(), key=lambda x: float(x.replace('B', '')))}"
+    )
     print(f"  Quants: {sorted(df['quant'].unique())}")
     print(f"  Domains: {sorted(df['domain'].unique())}")
     ensure_output_dir()
@@ -40,23 +44,50 @@ def main():
     # RQ1
     if target in ("all", "rq1"):
         from rq1_tests import run_all_rq1
+
         t0 = time.time()
         all_results["rq1"] = run_all_rq1()
-        print(f"\n  [RQ1 completed in {time.time()-t0:.1f}s]")
+        print(f"\n  [RQ1 completed in {time.time() - t0:.1f}s]")
 
     # RQ2
     if target in ("all", "rq2"):
         from rq2_tests import run_all_rq2
+
         t0 = time.time()
         all_results["rq2"] = run_all_rq2()
-        print(f"\n  [RQ2 completed in {time.time()-t0:.1f}s]")
+        print(f"\n  [RQ2 completed in {time.time() - t0:.1f}s]")
 
     # RQ3
     if target in ("all", "rq3"):
         from rq3_tests import run_all_rq3
+
         t0 = time.time()
         all_results["rq3"] = run_all_rq3()
-        print(f"\n  [RQ3 completed in {time.time()-t0:.1f}s]")
+        print(f"\n  [RQ3 completed in {time.time() - t0:.1f}s]")
+
+    # TOST equivalence analysis (task-level paired)
+    if target in ("all", "tost"):
+        from tost_equivalence import run_tost
+
+        t0 = time.time()
+        run_tost()
+        print(f"\n  [TOST completed in {time.time() - t0:.1f}s]")
+
+    # Operational deployment metrics
+    if target in ("all", "deployment"):
+        from deployment_metrics import run_deployment_metrics
+
+        t0 = time.time()
+        run_deployment_metrics()
+        print(f"\n  [Deployment metrics completed in {time.time() - t0:.1f}s]")
+
+    # Behavioral consistency (outcome flips + interaction turns)
+    if target in ("all", "behavior"):
+        from behavioral_consistency import run_behavioral_consistency
+
+        t0 = time.time()
+        run_behavioral_consistency()
+        print(f"\n  [Behavioral consistency completed in {time.time() - t0:.1f}s]")
 
     elapsed = time.time() - start
 

@@ -1,0 +1,73 @@
+{
+  "pooled_discordance": {
+    "q4_k_m vs bf16": {
+      "n_pairs": 12738,
+      "n_both_success": 2292,
+      "n_both_fail": 9230,
+      "n_regression": 597,
+      "n_improvement": 619,
+      "flip_rate": 0.0955,
+      "p_mcnemar": 0.547048
+    },
+    "q8_0 vs bf16": {
+      "n_pairs": 12804,
+      "n_both_success": 2503,
+      "n_both_fail": 9488,
+      "n_regression": 389,
+      "n_improvement": 424,
+      "flip_rate": 0.0635,
+      "p_mcnemar": 0.233072
+    }
+  },
+  "turns": {
+    "pooled_mean_turns": {
+      "bf16": {
+        "mean": 3.745,
+        "median": 2.0,
+        "n_tasks": 13018
+      },
+      "q8_0": {
+        "mean": 3.818,
+        "median": 3.0,
+        "n_tasks": 13170
+      },
+      "q4_k_m": {
+        "mean": 3.778,
+        "median": 3.0,
+        "n_tasks": 13198
+      }
+    },
+    "cell_tests": {
+      "q4_k_m vs bf16": {
+        "n_cells": 24,
+        "median_diff_turns": 0.118,
+        "mean_diff_turns": 0.101,
+        "wilcoxon_W": 101.0,
+        "p_value": 0.1688,
+        "effect_size_r": 0.281
+      },
+      "q8_0 vs bf16": {
+        "n_cells": 24,
+        "median_diff_turns": 0.064,
+        "mean_diff_turns": 0.107,
+        "wilcoxon_W": 84.0,
+        "p_value": 0.0604,
+        "effect_size_r": 0.383
+      }
+    },
+    "turns_by_outcome": {
+      "bf16": {
+        "success_mean_turns": 3.494,
+        "failure_mean_turns": 3.817
+      },
+      "q8_0": {
+        "success_mean_turns": 3.467,
+        "failure_mean_turns": 3.919
+      },
+      "q4_k_m": {
+        "success_mean_turns": 3.456,
+        "failure_mean_turns": 3.871
+      }
+    }
+  }
+}
