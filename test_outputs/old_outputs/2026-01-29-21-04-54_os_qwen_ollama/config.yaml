@@ -1,0 +1,136 @@
+assignments:
+- agent: ollama-qwen-4b
+  task: os-std
+- agent: ollama-qwen-8b
+  task: os-std
+concurrency:
+  agent:
+    ollama-qwen-4b: 1
+    ollama-qwen-8b: 1
+  task:
+    os-std: 1
+definition:
+  agent:
+    ollama-qwen-4b:
+      module: src.client.agents.HTTPAgent
+      parameters:
+        body:
+          format: json
+          model: qwen3:4b
+          options:
+            temperature: 0
+          stream: false
+        headers:
+          Content-Type: application/json
+        name: ollama-qwen-4b
+        prompter:
+          args:
+            agent_role: assistant
+          name: role_content_dict
+        return_format: '{response[message][content]}'
+        url: http://localhost:11434/api/chat
+    ollama-qwen-8b:
+      module: src.client.agents.HTTPAgent
+      parameters:
+        body:
+          format: json
+          model: qwen3:8b
+          options:
+            temperature: 0
+          stream: false
+        headers:
+          Content-Type: application/json
+        name: ollama-qwen-8b
+        prompter:
+          args:
+            agent_role: assistant
+          name: role_content_dict
+        return_format: '{response[message][content]}'
+        url: http://localhost:11434/api/chat
+  task:
+    os-std:
+      module: src.client.TaskClient
+      parameters:
+        concurrency: 32
+        controller_address: http://localhost:5020/api
+        data_config:
+          bk: []
+          files:
+          - index_prefix: std-001-
+            problem_file: data/os_interaction/data/1/*.json
+            script_dir: data/os_interaction/scripts/1/
+          - index_prefix: std-002-
+            problem_file: data/os_interaction/data/2/*.json
+            script_dir: data/os_interaction/scripts/2/
+          - index_prefix: std-003-
+            problem_file: data/os_interaction/data/3/*.json
+            script_dir: data/os_interaction/scripts/3/
+          - index_prefix: std-004-
+            problem_file: data/os_interaction/data/4/*.json
+            script_dir: data/os_interaction/scripts/4/
+          - index_prefix: std-005-
+            problem_file: data/os_interaction/data/5/*.json
+            script_dir: data/os_interaction/scripts/5/
+          - index_prefix: std-006-
+            problem_file: data/os_interaction/data/6/*.json
+            script_dir: data/os_interaction/scripts/6/
+          - index_prefix: std-007-
+            problem_file: data/os_interaction/data/7/*.json
+            script_dir: data/os_interaction/scripts/7/
+          ignore: []
+        docker_config:
+          directory: data/os_interaction/res/dockerfiles
+          localhost: local-os
+        env_driver: docker
+        env_options:
+          network_name: os_interaction_default
+          state_driver: redis
+          state_options:
+            connection:
+              host: 172.17.0.1
+        name: os-std
+        round_limit: 8
+        scripts:
+          directory: data/os_interaction/res/scripts
+        tools:
+        - function:
+            description: Execute bash code to perform an operation in the Linux environment.
+            name: bash_action
+            parameters:
+              additionalProperties: false
+              properties:
+                script:
+                  description: The bash script to be executed.
+                  type: string
+              required:
+              - script
+              type: object
+          type: function
+        - function:
+            description: Indicate that the task has been finished or need some additional
+              information to be finished.
+            name: finish_action
+            parameters:
+              additionalProperties: false
+              properties:
+                thought:
+                  description: The thought or reason indicating the task is finished.
+                  type: string
+              required:
+              - thought
+              type: object
+          type: function
+        - function:
+            description: Provide the answer to the question.
+            name: answer_action
+            parameters:
+              additionalProperties: false
+              properties:
+                answer:
+                  description: The answer to the question.
+                  type: string
+              required:
+              - answer
+              type: object
+          type: function
+output: outputs/2026-01-29-21-04-54_os_qwen_ollama

@@ -1,0 +1,118 @@
+assignments:
+- agent: ollama-gemma2-2b
+  task: alfworld-std
+- agent: ollama-qwen-8b
+  task: alfworld-std
+- agent: ollama-qwen-4b
+  task: alfworld-std
+- agent: ollama-gemma2-9b
+  task: alfworld-std
+concurrency:
+  agent:
+    ollama-gemma2-2b: 1
+    ollama-gemma2-9b: 1
+    ollama-qwen-4b: 1
+    ollama-qwen-8b: 1
+  task:
+    alfworld-std: 1
+definition:
+  agent:
+    ollama-gemma2-2b:
+      module: src.client.agents.HTTPAgent
+      parameters:
+        body:
+          format: json
+          model: gemma2:2b
+          options:
+            temperature: 0
+          stream: false
+        headers:
+          Content-Type: application/json
+        name: ollama-gemma2-2b
+        prompter:
+          args:
+            agent_role: assistant
+          name: role_content_dict
+        return_format: '{response[message][content]}'
+        url: http://localhost:11434/api/chat
+    ollama-gemma2-9b:
+      module: src.client.agents.HTTPAgent
+      parameters:
+        body:
+          format: json
+          model: gemma2:9b
+          options:
+            temperature: 0
+          stream: false
+        headers:
+          Content-Type: application/json
+        name: ollama-gemma2-9b
+        prompter:
+          args:
+            agent_role: assistant
+          name: role_content_dict
+        return_format: '{response[message][content]}'
+        url: http://localhost:11434/api/chat
+    ollama-qwen-4b:
+      module: src.client.agents.HTTPAgent
+      parameters:
+        body:
+          format: json
+          model: qwen3:4b
+          options:
+            temperature: 0
+          stream: false
+        headers:
+          Content-Type: application/json
+        name: ollama-qwen-4b
+        prompter:
+          args:
+            agent_role: assistant
+          name: role_content_dict
+        return_format: '{response[message][content]}'
+        url: http://localhost:11434/api/chat
+    ollama-qwen-8b:
+      module: src.client.agents.HTTPAgent
+      parameters:
+        body:
+          format: json
+          model: qwen3:8b
+          options:
+            temperature: 0
+          stream: false
+        headers:
+          Content-Type: application/json
+        name: ollama-qwen-8b
+        prompter:
+          args:
+            agent_role: assistant
+          name: role_content_dict
+        return_format: '{response[message][content]}'
+        url: http://localhost:11434/api/chat
+  task:
+    alfworld-std:
+      module: src.client.TaskClient
+      parameters:
+        concurrency: 16
+        config_path: /app/src/server/tasks/alfworld/configs/base_config.yaml
+        controller_address: http://localhost:5020/api
+        data_path: /app/data/alfworld
+        max_step: 20
+        name: alfworld-std
+        prompts_path: /app/src/server/tasks/alfworld/prompts/alfworld_multiturn_plan_first.json
+        split: new_std
+        tools:
+        - function:
+            description: Take an action.
+            name: take_action
+            parameters:
+              additionalProperties: false
+              properties:
+                action:
+                  description: The action you would like to take
+                  type: string
+              required:
+              - action
+              type: object
+          type: function
+output: outputs/2026-02-08-22-53-35_alfworld_ollama

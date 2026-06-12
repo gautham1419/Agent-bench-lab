@@ -1,0 +1,66 @@
+assignments:
+- agent: ollama-gemma2-2b
+  task: webshop-std
+concurrency:
+  agent:
+    ollama-gemma2-2b: 1
+  task:
+    webshop-std: 1
+definition:
+  agent:
+    ollama-gemma2-2b:
+      module: src.client.agents.HTTPAgent
+      parameters:
+        body:
+          format: json
+          model: gemma2:2b
+          options:
+            temperature: 0
+          stream: false
+        headers:
+          Content-Type: application/json
+        name: ollama-gemma2-2b
+        prompter:
+          args:
+            agent_role: assistant
+          name: role_content_dict
+        return_format: '{response[message][content]}'
+        url: http://localhost:11434/api/chat
+  task:
+    webshop-std:
+      module: src.client.TaskClient
+      parameters:
+        concurrency: 64
+        controller_address: http://localhost:5020/api
+        end: 200
+        name: webshop-std
+        round: 20
+        start: 0
+        tools:
+        - function:
+            description: Use search functionality with specified keywords.
+            name: search_action
+            parameters:
+              additionalProperties: false
+              properties:
+                keywords:
+                  description: The keywords to use in the search function.
+                  type: string
+              required:
+              - keywords
+              type: object
+          type: function
+        - function:
+            description: Click a button or link with a specified value.
+            name: click_action
+            parameters:
+              additionalProperties: false
+              properties:
+                value:
+                  description: The value to click from the list of available actions.
+                  type: string
+              required:
+              - value
+              type: object
+          type: function
+output: outputs/2026-02-05-23-52-28_webshop_ollama
