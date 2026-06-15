@@ -34,11 +34,9 @@ def save_fig(fig, name):
     # Save PDF (vector) and PNG (raster)
     pdf_path = os.path.join(OUT_DIR, f"{name}.pdf")
     png_path = os.path.join(OUT_DIR, f"{name}.png")
-    png_double_path = os.path.join(OUT_DIR, f"{name}.png.png")
-    
+
     fig.savefig(pdf_path, bbox_inches='tight', transparent=True)
     fig.savefig(png_path, dpi=300, bbox_inches='tight')
-    fig.savefig(png_double_path, dpi=300, bbox_inches='tight')
     plt.close(fig)
     print(f"Saved {name} (PDF, PNG)")
 
@@ -228,161 +226,127 @@ def make_rq2b():
     save_fig(fig, "fig_rq2b")
 
 # =========================================================================
-# fig_rq3a: Stacked horizontal quadrant analysis (fixed legend overlap!)
-# =========================================================================
-def make_rq3a():
-    fig, ax = plt.subplots(figsize=(4.2, 2.5))
-    
-    y = [r'F16/BF16$\rightarrow$Q4_K_M', r'F16/BF16$\rightarrow$Q8$_0$']
-    
-    # Proportions: Win-win, Trade-off, Inverse, Lose-lose
-    win_win = [41.7, 66.7]
-    trade_off = [50.0, 29.2]
-    inverse = [8.3, 4.2]
-    lose_lose = [0.0, 0.0]
-    
-    # Accumulate bar positions for stacking
-    lefts = np.zeros(2)
-    
-    # Plot segments
-    ax.barh(y, win_win, label='Win-win', color=C_Q8, height=0.4, edgecolor='none')
-    lefts += win_win
-    
-    ax.barh(y, trade_off, left=lefts, label='Trade-off', color=C_Q4, height=0.4, edgecolor='none')
-    lefts += trade_off
-    
-    ax.barh(y, inverse, left=lefts, label='Inverse', color=C_GREY, height=0.4, edgecolor='none')
-    lefts += inverse
-    
-    ax.barh(y, lose_lose, left=lefts, label='Lose-lose', color=C_RED, height=0.4, edgecolor='none')
-    
-    ax.set_xlabel('% of n=24 pairs')
-    ax.set_title('(a) Quadrant classification')
-    ax.set_xlim(0, 100)
-    ax.xaxis.grid(True)
-    ax.set_axisbelow(True)
-    
-    # Place legend BELOW the plot (or above in white space) to completely avoid overlap
-    ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.38), ncol=4, frameon=False)
-    
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(FalseSpine := True) # matplotlib typo fix
-    ax.spines['right'].set_visible(False)
-    
-    save_fig(fig, "fig_rq3a")
-
-# =========================================================================
 # fig_rq3b: Pareto frontier
 # =========================================================================
 def make_rq3b():
-    fig, ax = plt.subplots(figsize=(4.2, 2.8))
-    
-    # Dominated BF16 points (Blue circles)
-    bf16_points = [
-        (8.85, 0.17),   # DS 1.5B BF16
-        (10.52, 3.63),  # DS 7B BF16
-        (4.93, 15.86),  # Ministral 3B BF16
-        (5.13, 28.07),  # Ministral 8B BF16
-        (29.75, 43.34), # Qwen 4B BF16
-        (4.15, 21.91)   # Qwen 8B BF16
-    ]
-    
-    # Dominated Q8_0 points (Green squares)
-    q8_dominated_points = [
-        (7.75, 0.17),   # DS 1.5B Q8
-        (8.11, 3.49),   # DS 7B Q8
-        (3.23, 17.56),  # Ministral 3B Q8
-        (3.73, 29.18),  # Ministral 8B Q8
-        (3.19, 20.95)   # Qwen 8B Q8
-    ]
-    
-    # Dominated Q4_K_M points (Orange triangles)
-    q4_dominated_points = [
-        (5.97, 0.58),   # DS 1.5B Q4
-        (6.81, 2.78),   # DS 7B Q4
-        (2.77, 18.82)   # Qwen 8B Q4
-    ]
-    
-    # Pareto-optimal points: Q4_K_M (Orange triangles, bold outline)
-    pareto_q4_points = [
-        (2.61, 21.56),  # Ministral 3B Q4
-        (3.02, 29.61),  # Ministral 8B Q4
-        (17.57, 42.69)  # Qwen 4B Q4
-    ]
-    
-    # Pareto-optimal points: Q8_0 (Green squares, bold outline)
-    pareto_q8_points = [
-        (20.05, 43.49)  # Qwen 4B Q8
-    ]
-    
-    # Separate x and y for plotting
-    bf16_x, bf16_y = zip(*bf16_points)
-    q8_dom_x, q8_dom_y = zip(*q8_dominated_points)
-    q4_dom_x, q4_dom_y = zip(*q4_dominated_points)
-    
-    pareto_q4_x, pareto_q4_y = zip(*pareto_q4_points)
-    pareto_q8_x, pareto_q8_y = zip(*pareto_q8_points)
-    
-    # Log scale on x-axis
-    ax.set_xscale('log')
-    ax.set_xticks([2.5, 3, 4, 5, 7, 10, 15, 20, 30])
-    from matplotlib.ticker import ScalarFormatter
-    ax.xaxis.set_major_formatter(ScalarFormatter())
-    
-    # Plot dominated points
-    ax.scatter(bf16_x, bf16_y, color=C_BF16, marker='o', s=45, alpha=0.6, label='F16/BF16 (dominated)', zorder=2, edgecolor='none')
-    ax.scatter(q8_dom_x, q8_dom_y, color=C_Q8, marker='s', s=45, alpha=0.6, label='Q8$_0$ (dominated)', zorder=2, edgecolor='none')
-    ax.scatter(q4_dom_x, q4_dom_y, color=C_Q4, marker='^', s=45, alpha=0.6, label='Q4_K_M (dominated)', zorder=2, edgecolor='none')
-    
-    # Plot Pareto-optimal points
-    ax.scatter(pareto_q4_x, pareto_q4_y, color=C_Q4, marker='^', s=65, label='Pareto-optimal (Q4_K_M)', zorder=3, edgecolor='black', linewidth=1.5)
-    ax.scatter(pareto_q8_x, pareto_q8_y, color=C_Q8, marker='s', s=65, label='Pareto-optimal (Q8$_0$)', zorder=3, edgecolor='black', linewidth=1.5)
-    
-    # Connect all Pareto frontier points with a dashed line
-    all_pareto_points = pareto_q4_points + pareto_q8_points
-    sorted_pareto = sorted(all_pareto_points, key=lambda pt: pt[0])
-    px, py = zip(*sorted_pareto)
-    ax.plot(px, py, color='#444444', linestyle='--', linewidth=1.2, zorder=1)
-    
-    # Label Pareto optimal configurations
-    labels = {
-        (2.61, 21.56): ('Min3-3B-Q4_K_M', -10, -12, 'right', 'top'),
-        (3.02, 29.61): ('Min3-8B-Q4_K_M', -10, 12, 'right', 'bottom'),
-        (17.57, 42.69): ('Qwen-4B-Q4_K_M', -10, 8, 'right', 'bottom'),
-        (20.05, 43.49): ('Qwen-4B-Q8', 8, 4, 'left', 'bottom')
-    }
-    for pt, (label, x_off, y_off, ha, va) in labels.items():
-        x_coord, y_coord = pt
-        ax.annotate(label, xy=(x_coord, y_coord), xytext=(x_off, y_off),
-                    textcoords='offset points', fontsize=8.0, fontweight='bold',
-                    color='#333333', ha=ha, va=va)
-    
-    ax.set_xlabel('Energy/task (kJ)')
-    ax.set_ylabel('Success Rate (%)')
-    ax.set_title('(b) Pareto frontier')
-    
-    # Format Y axis as percentage
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda val, pos: f'{val:.0f}%'))
-    
-    ax.set_xlim(0.8, 35.0)
-    ax.set_ylim(0, 50)
-    ax.grid(True, which='both')
-    ax.set_axisbelow(True)
-    
-    # Custom Legend
+    from matplotlib.ticker import FuncFormatter, NullFormatter
     from matplotlib.lines import Line2D
-    legend_elements = [
-        Line2D([0], [0], marker='o', color='w', markerfacecolor=C_BF16, markersize=7, alpha=0.6, label='F16/BF16 (dominated)', linestyle='None'),
-        Line2D([0], [0], marker='s', color='w', markerfacecolor=C_Q8, markersize=7, alpha=0.6, label='Q8$_0$ (dominated)', linestyle='None'),
-        Line2D([0], [0], marker='^', color='w', markerfacecolor=C_Q4, markersize=7, alpha=0.6, label='Q4_K_M (dominated)', linestyle='None'),
-        Line2D([0], [0], marker='s', color='w', markerfacecolor=C_Q8, markeredgecolor='black', markeredgewidth=1.2, markersize=8, label='Pareto (Q8$_0$)', linestyle='None'),
-        Line2D([0], [0], marker='^', color='w', markerfacecolor=C_Q4, markeredgecolor='black', markeredgewidth=1.2, markersize=8, label='Pareto (Q4_K_M)', linestyle='None')
+    from matplotlib.patches import Patch
+
+    # Muted academic palette, matching Fig. 2 / Fig. 3 of the paper.
+    P_GREEN = '#7cbf7c'  # F16/BF16
+    P_MAUVE = '#bda4d4'  # Q8_0
+    P_BLUE  = '#9fc0e8'  # Q4_K_M
+    P_EDGE  = '#2b2b2b'  # Pareto outline / frontier line
+    P_NEUT  = '#9a9a9a'  # neutral grey for legend keys
+
+    # Visual encoding (so no point needs a hand-placed text label):
+    #   colour  -> precision      shape -> model family   size -> model scale
+    QUANT_COLOR = {'F16': P_GREEN, 'Q8': P_MAUVE, 'Q4': P_BLUE}
+    FAMILY_MARK = {'DeepSeek': 'o', 'Ministral': 's', 'Qwen': '^'}
+    SCALE_SIZE  = {'small': 22, 'large': 100}
+
+    # --- Data: (energy kJ/task, success %, family, precision, scale, pareto) -
+    points = [
+        # F16/BF16
+        (8.85, 0.17,  'DeepSeek',  'F16', 'small', False),
+        (10.52, 3.63, 'DeepSeek',  'F16', 'large', False),
+        (4.93, 15.86, 'Ministral', 'F16', 'small', False),
+        (5.13, 28.07, 'Ministral', 'F16', 'large', False),
+        (29.75, 43.34,'Qwen',      'F16', 'small', False),
+        (4.15, 21.91, 'Qwen',      'F16', 'large', False),
+        # Q8_0
+        (7.75, 0.17,  'DeepSeek',  'Q8', 'small', False),
+        (8.11, 3.49,  'DeepSeek',  'Q8', 'large', False),
+        (3.23, 17.56, 'Ministral', 'Q8', 'small', False),
+        (3.73, 29.18, 'Ministral', 'Q8', 'large', False),
+        (3.19, 20.95, 'Qwen',      'Q8', 'large', False),
+        # Q4_K_M
+        (5.97, 0.58,  'DeepSeek',  'Q4', 'small', False),
+        (6.81, 2.78,  'DeepSeek',  'Q4', 'large', False),
+        (2.77, 18.82, 'Qwen',      'Q4', 'large', False),
+        # Pareto-optimal (the frontier)
+        (2.61, 21.56, 'Ministral', 'Q4', 'small', True),
+        (3.02, 29.61, 'Ministral', 'Q4', 'large', True),
+        (17.57, 42.69,'Qwen',      'Q4', 'small', True),
+        (20.05, 43.49,'Qwen',      'Q8', 'small', True),
     ]
-    ax.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, -0.22), ncol=3, frameon=False)
-    
+
+    fig, ax = plt.subplots(figsize=(5.0, 3.1))
+
+    # --- Axes setup ---------------------------------------------------------
+    ax.set_xscale('log')
+    ax.set_xlim(2.2, 36.0)
+    ax.set_ylim(0, 50)
+    ax.set_xticks([2.5, 4, 7, 10, 20, 30])
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f'{v:g}'))
+    ax.xaxis.set_minor_formatter(NullFormatter())
+    ax.set_yticks([0, 10, 20, 30, 40, 50])
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f'{v:.0f}%'))
+    ax.set_xlabel('Energy/task (kJ, log scale)')
+    ax.set_ylabel('Success Rate (%)')
+    ax.grid(True, which='major', axis='both')
+    ax.set_axisbelow(True)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    
+
+    # --- Pareto frontier line -----------------------------------------------
+    frontier = sorted([p for p in points if p[5]], key=lambda p: p[0])
+    ax.plot([p[0] for p in frontier], [p[1] for p in frontier],
+            color=P_EDGE, linestyle='--', linewidth=1.0, zorder=2)
+
+    # --- All configurations (Pareto = dark outline, dominated = none) -------
+    for x, y, family, quant, scale, is_pareto in points:
+        ax.scatter([x], [y], marker=FAMILY_MARK[family], c=QUANT_COLOR[quant],
+                   s=SCALE_SIZE[scale],
+                   edgecolor=(P_EDGE if is_pareto else 'none'),
+                   linewidth=(1.2 if is_pareto else 0),
+                   alpha=(1.0 if is_pareto else 0.8),
+                   zorder=(5 if is_pareto else 3))
+
+    # --- Single boxed legend (right): family=shape, precision=colour, --------
+    #     size=scale, dark outline=Pareto. Bold rows act as group headers.
+    def hdr(text):
+        return Line2D([], [], marker='None', linestyle='None', label=text)
+
+    handles = [
+        Line2D([], [], marker='o', color='w', markerfacecolor='w',
+               markeredgecolor=P_EDGE, markeredgewidth=1.2, markersize=7,
+               linestyle='None', label='Pareto-optimal'),
+        hdr('Family'),
+        Line2D([], [], marker='o', color='w', markerfacecolor=P_NEUT,
+               markersize=6, linestyle='None', label='DeepSeek-R1'),
+        Line2D([], [], marker='s', color='w', markerfacecolor=P_NEUT,
+               markersize=6, linestyle='None', label='Ministral-3'),
+        Line2D([], [], marker='^', color='w', markerfacecolor=P_NEUT,
+               markersize=6, linestyle='None', label='Qwen3'),
+        hdr('Precision'),
+        Line2D([], [], marker='o', color='w', markerfacecolor=QUANT_COLOR['F16'],
+               markersize=6, linestyle='None', label='16-bit'),
+        Line2D([], [], marker='o', color='w', markerfacecolor=QUANT_COLOR['Q8'],
+               markersize=6, linestyle='None', label='8-bit'),
+        Line2D([], [], marker='o', color='w', markerfacecolor=QUANT_COLOR['Q4'],
+               markersize=6, linestyle='None', label='4-bit'),
+        hdr('Scale'),
+        Line2D([], [], marker='o', color='w', markerfacecolor=P_NEUT,
+               markersize=3.5, linestyle='None', label='Smaller model'),
+        Line2D([], [], marker='o', color='w', markerfacecolor=P_NEUT,
+               markersize=10, linestyle='None', label='Larger model'),
+    ]
+
+    leg = ax.legend(
+        handles=handles, loc='center left', bbox_to_anchor=(1.02, 0.5),
+        frameon=True, fontsize=7.0, handletextpad=0.4, labelspacing=0.45,
+        borderpad=0.8)
+    leg.get_frame().set_edgecolor('#bbbbbb')
+    leg.get_frame().set_linewidth(0.7)
+    leg.get_frame().set_facecolor('white')
+    # Bold the group-header rows.
+    texts = leg.get_texts()
+    for i in (1, 5, 9):
+        texts[i].set_fontweight('bold')
+
+    fig.subplots_adjust(right=0.72)
     save_fig(fig, "fig_rq3b")
 
 def main():
@@ -391,7 +355,6 @@ def main():
     make_rq1c()
     make_rq2a()
     make_rq2b()
-    make_rq3a()
     make_rq3b()
 
 if __name__ == "__main__":
