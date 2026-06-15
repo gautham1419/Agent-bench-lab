@@ -4,22 +4,15 @@ concurrency:
   task:
     webshop-std: 1
   agent:
+    #ollama-ministral3-3b-q4_k_m: 1
+    #ollama-ministral3-8b-q4_k_m: 1
+    #ollama-ministral3-3b-q8_0: 1
+    #ollama-ministral3-8b-q8_0: 1
+    #ollama-ministral3-3b-bf16: 1
+    #ollama-ministral3-8b-bf16: 1
     #ollama-qwen3-4b-q4_k_m: 1
     #ollama-qwen3-4b-q8_0: 1
-    #ollama-gemma3-4b-it-q4_k_m: 1
-    #ollama-ministral3-3b-reasoning-q4_k_m: 1
-    #ollama-qwen3-4b-thinking-q4_k_m: 1
-    #ollama-ministral3-8b-reasoning-q4_k_m: 1
-    #ollama-ministral3-3b-reasoning-q8_0: 1
-    #ollama-ministral3-8b-reasoning-q8_0: 1
-    #ollama-ministral3-3b-reasoning-bf16: 1
-    #ollama-ministral3-8b-reasoning-bf16: 1
-    #ollama-qwen3.5-4b-q4_k_m: 1
-    #ollama-qwen3.5-4b-q8_0: 1
-    #ollama-qwen3.5-4b-bf16: 1
-    #ollama-qwen3-4b-t-q4_k_m: 1
-    #ollama-qwen3-4b-t-q8_0: 1
-    #ollama-qwen3-4b-t-f16: 1
+    #ollama-qwen3-4b-f16: 1
     #ollama-qwen3-8b-q4_k_m: 1
     #ollama-qwen3-8b-q8_0: 1
     #ollama-qwen3-8b-bf16: 1
@@ -32,22 +25,15 @@ concurrency:
 
 assignments:
   - agent:
+      #- ollama-ministral3-3b-q4_k_m
+      #- ollama-ministral3-8b-q4_k_m
+      #- ollama-ministral3-3b-q8_0
+      #- ollama-ministral3-8b-q8_0
+      #- ollama-ministral3-3b-bf16
+      #- ollama-ministral3-8b-bf16
       #- ollama-qwen3-4b-q4_k_m
       #- ollama-qwen3-4b-q8_0
-      #- ollama-gemma3-4b-it-q4_k_m
-      #- ollama-ministral3-3b-reasoning-q4_k_m
-      #- ollama-qwen3-4b-thinking-q4_k_m
-      #- ollama-ministral3-8b-reasoning-q4_k_m
-      #- ollama-ministral3-3b-reasoning-q8_0
-      #- ollama-ministral3-8b-reasoning-q8_0
-      #- ollama-ministral3-3b-reasoning-bf16
-      #- ollama-ministral3-8b-reasoning-bf16
-      #- ollama-qwen3.5-4b-q4_k_m
-      #- ollama-qwen3.5-4b-q8_0
-      #- ollama-qwen3.5-4b-bf16
-      #- ollama-qwen3-4b-t-q4_k_m
-      #- ollama-qwen3-4b-t-q8_0
-      #- ollama-qwen3-4b-t-f16
+      #- ollama-qwen3-4b-f16
       #- ollama-qwen3-8b-q4_k_m
       #- ollama-qwen3-8b-q8_0
       #- ollama-qwen3-8b-bf16
