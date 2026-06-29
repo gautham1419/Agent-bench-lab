@@ -12,24 +12,25 @@ Tests implemented:
   5. Cochran-Mantel-Haenszel Test  (stratified association)
 """
 
-import warnings, textwrap
+import warnings
+
 warnings.filterwarnings("ignore")
 
 import numpy as np
 import pandas as pd
-from scipy import stats
-import statsmodels.api as sm
 import statsmodels.formula.api as smf
+from scipy import stats
 from statsmodels.stats.anova import anova_lm
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 try:
     import scikit_posthocs as sp
+
     HAS_POSTHOCS = True
 except ImportError:
     HAS_POSTHOCS = False
 
-from data_loader import load_run_data, get_matched_data, save_results
+from data_loader import load_run_data, save_results
 
 SEPARATOR = "=" * 72
 
@@ -53,13 +54,19 @@ def test_twoway_anova(df):
         vals = grp["success_rate"].dropna()
         if len(vals) >= 3:
             stat, p = stats.shapiro(vals)
-            normality_results.append({"size": sz, "quant": q, "W": stat, "p": p, "n": len(vals)})
+            normality_results.append(
+                {"size": sz, "quant": q, "W": stat, "p": p, "n": len(vals)}
+            )
             flag = " FAIL" if p < 0.05 else " OK"
             print(f"    {sz:>5} x {q:<8}  W={stat:.4f}  p={p:.4f}  n={len(vals)}{flag}")
     results["shapiro_wilk"] = normality_results
 
     # 2. Levene's test for homogeneity of variance
-    groups = [grp["success_rate"].dropna().values for _, grp in df.groupby(["size", "quant"]) if len(grp) >= 2]
+    groups = [
+        grp["success_rate"].dropna().values
+        for _, grp in df.groupby(["size", "quant"])
+        if len(grp) >= 2
+    ]
     if len(groups) >= 2:
         lev_stat, lev_p = stats.levene(*groups)
         print(f"\n  [Assumption Check] Levene's test: F={lev_stat:.4f}, p={lev_p:.4f}")
@@ -92,12 +99,16 @@ def test_twoway_anova(df):
 
     # Post-hoc: Tukey HSD for size
     print("\n  --- Post-hoc: Tukey HSD for Size ---")
-    tukey_size = pairwise_tukeyhsd(df["success_rate"].values, df["size"].values, alpha=0.05)
+    tukey_size = pairwise_tukeyhsd(
+        df["success_rate"].values, df["size"].values, alpha=0.05
+    )
     print(tukey_size.summary())
 
     # Post-hoc: Tukey HSD for quant
     print("\n  --- Post-hoc: Tukey HSD for Quantization ---")
-    tukey_quant = pairwise_tukeyhsd(df["success_rate"].values, df["quant"].values, alpha=0.05)
+    tukey_quant = pairwise_tukeyhsd(
+        df["success_rate"].values, df["quant"].values, alpha=0.05
+    )
     print(tukey_quant.summary())
 
     return results
@@ -115,19 +126,22 @@ def test_kruskal_wallis(df):
     results = {}
 
     # By quantization level
-    quant_groups = [grp["success_rate"].dropna().values for _, grp in df.groupby("quant")]
+    quant_groups = [
+        grp["success_rate"].dropna().values for _, grp in df.groupby("quant")
+    ]
     kw_stat, kw_p = stats.kruskal(*quant_groups)
     n_total = sum(len(g) for g in quant_groups)
     k = len(quant_groups)  # number of groups
     epsilon_sq = max(0.0, (kw_stat - k + 1)) / (n_total - k)
-    # epsilon_sq = kw_stat / (n_total - 1)  # effect size
-    print(f"\n  Grouping by Quantization:")
+    print("\n  Grouping by Quantization:")
     print(f"    H = {kw_stat:.4f},  p = {kw_p:.6f},  e^2 = {epsilon_sq:.4f}")
     results["quant"] = {"H": kw_stat, "p": kw_p, "epsilon_sq": epsilon_sq}
 
     if HAS_POSTHOCS and kw_p < 0.05:
         print("    Post-hoc (Dunn's test with Bonferroni):")
-        dunn = sp.posthoc_dunn(df, val_col="success_rate", group_col="quant", p_adjust="bonferroni")
+        dunn = sp.posthoc_dunn(
+            df, val_col="success_rate", group_col="quant", p_adjust="bonferroni"
+        )
         print(dunn.to_string())
         results["quant_dunn"] = dunn.to_dict()
 
@@ -137,25 +151,27 @@ def test_kruskal_wallis(df):
     n_total = sum(len(g) for g in size_groups)
     k = len(size_groups)  # number of groups
     epsilon_sq = max(0.0, (kw_stat - k + 1)) / (n_total - k)
-   # epsilon_sq = kw_stat / (n_total - 1)
-    print(f"\n  Grouping by Size:")
+    print("\n  Grouping by Size:")
     print(f"    H = {kw_stat:.4f},  p = {kw_p:.6f},  e^2 = {epsilon_sq:.4f}")
     results["size"] = {"H": kw_stat, "p": kw_p, "epsilon_sq": epsilon_sq}
 
     if HAS_POSTHOCS and kw_p < 0.05:
         print("    Post-hoc (Dunn's test with Bonferroni):")
-        dunn = sp.posthoc_dunn(df, val_col="success_rate", group_col="size", p_adjust="bonferroni")
+        dunn = sp.posthoc_dunn(
+            df, val_col="success_rate", group_col="size", p_adjust="bonferroni"
+        )
         print(dunn.to_string())
         results["size_dunn"] = dunn.to_dict()
 
     # By model family
-    model_groups = [grp["success_rate"].dropna().values for _, grp in df.groupby("model")]
+    model_groups = [
+        grp["success_rate"].dropna().values for _, grp in df.groupby("model")
+    ]
     kw_stat, kw_p = stats.kruskal(*model_groups)
     n_total = sum(len(g) for g in model_groups)
     k = len(model_groups)  # number of groups
     epsilon_sq = max(0.0, (kw_stat - k + 1)) / (n_total - k)
-    #epsilon_sq = kw_stat / (n_total - 1)
-    print(f"\n  Grouping by Model Family:")
+    print("\n  Grouping by Model Family:")
     print(f"    H = {kw_stat:.4f},  p = {kw_p:.6f},  e^2 = {epsilon_sq:.4f}")
     results["model"] = {"H": kw_stat, "p": kw_p, "epsilon_sq": epsilon_sq}
 
@@ -178,13 +194,15 @@ def test_lmm(df):
     results = {}
 
     df_lmm = df.dropna(subset=["success_rate"]).copy()
-    df_lmm["quant"] = pd.Categorical(df_lmm["quant"], categories=["bf16", "q8_0", "q4_k_m"])
+    df_lmm["quant"] = pd.Categorical(
+        df_lmm["quant"], categories=["bf16", "q8_0", "q4_k_m"]
+    )
 
     # Model with quant as categorical, size as numeric, domain as fixed, model as random
     formula = "success_rate ~ C(size_num) * C(quant, Treatment('bf16')) + C(domain)"
 
     print(f"\n  Formula: {formula}")
-    print(f"  Random effect: (1 | model)")
+    print("  Random effect: (1 | model)")
     print(f"  N = {len(df_lmm)}")
 
     try:
@@ -198,6 +216,7 @@ def test_lmm(df):
 
         # AIC/BIC are not defined for REML fits; store only if valid
         import math
+
         if not math.isnan(lmm_fit.aic):
             results["aic"] = lmm_fit.aic
             results["bic"] = lmm_fit.bic
@@ -207,7 +226,7 @@ def test_lmm(df):
         pvals = lmm_fit.pvalues
         print("\n  Fixed Effects Summary:")
         print(f"    {'Parameter':<55} {'Coef':>8} {'p-value':>10}")
-        print(f"    {'-'*75}")
+        print(f"    {'-' * 75}")
         for param in fe.index:
             print(f"    {param:<55} {fe[param]:>8.4f} {pvals[param]:>10.6f}")
 
@@ -217,30 +236,40 @@ def test_lmm(df):
         re_var = lmm_fit.cov_re.iloc[0, 0]
         resid_var = lmm_fit.scale
         icc = re_var / (re_var + resid_var)
-        print(f"\n  Random Effects:")
+        print("\n  Random Effects:")
         print(f"    Model intercept variance: {re_var:.6f}")
         print(f"    Residual variance: {resid_var:.6f}")
         print(f"    ICC (model): {icc:.4f}")
-        results["random_effects"] = {"model_var": re_var, "resid_var": resid_var, "icc": icc}
+        results["random_effects"] = {
+            "model_var": re_var,
+            "resid_var": resid_var,
+            "icc": icc,
+        }
 
     except Exception as e:
         print(f"  [ERROR] LMM failed: {e}")
         results["error"] = str(e)
 
     # Simpler model without interaction for comparison
-    print(f"\n  --- Reduced Model (no interaction) ---")
+    print("\n  --- Reduced Model (no interaction) ---")
     formula2 = "success_rate ~ C(size_num) + C(quant, Treatment('bf16')) + C(domain)"
     try:
         lmm2 = smf.mixedlm(formula2, data=df_lmm, groups=df_lmm["model"])
         lmm2_fit = lmm2.fit(reml=False)  # ML for model comparison
-        lmm_full = smf.mixedlm(formula, data=df_lmm, groups=df_lmm["model"]).fit(reml=False)
+        lmm_full = smf.mixedlm(formula, data=df_lmm, groups=df_lmm["model"]).fit(
+            reml=False
+        )
 
         lr_stat = -2 * (lmm2_fit.llf - lmm_full.llf)
         df_diff = lmm_full.df_modelwc - lmm2_fit.df_modelwc
         lr_p = 1 - stats.chi2.cdf(lr_stat, max(df_diff, 1))
-        print(f"  Likelihood Ratio Test (interaction term):")
+        print("  Likelihood Ratio Test (interaction term):")
         print(f"    chi2 = {lr_stat:.4f}, df = {df_diff}, p = {lr_p:.6f}")
-        results["lr_test_interaction"] = {"chi2": lr_stat, "df": int(df_diff), "p": lr_p}
+        results["lr_test_interaction"] = {
+            "chi2": lr_stat,
+            "df": int(df_diff),
+            "p": lr_p,
+        }
     except Exception as e:
         print(f"  [NOTE] Model comparison failed: {e}")
 
@@ -311,29 +340,32 @@ def test_cmh(df):
             total_successes = q_data["successes"].sum()
             total_failures = q_data["failures"].sum() + q_data["errors"].sum()
             table_data.append([total_successes, total_failures])
-            print(f"      {q:<8}: successes={total_successes:>5}, failures={total_failures:>5}")
+            print(
+                f"      {q:<8}: successes={total_successes:>5}, failures={total_failures:>5}"
+            )
         table_array = np.array(table_data).T  # 2 rows (success/fail) × 3 cols (quant)
         tables.append(table_array)
 
     # CMH test using statsmodels StratifiedTable
     try:
         from statsmodels.stats.contingency_tables import StratifiedTable
+
         st = StratifiedTable(tables)
         cmh_result = st.test_null_odds()
-        print(f"\n  CMH Test Results:")
+        print("\n  CMH Test Results:")
         print(f"    Statistic = {cmh_result.statistic:.4f}")
         print(f"    p-value   = {cmh_result.pvalue:.6f}")
         results["cmh_statistic"] = cmh_result.statistic
         results["cmh_pvalue"] = cmh_result.pvalue
 
         # Common odds ratio
-        print(f"\n  Common Odds Ratio (Mantel-Haenszel):")
+        print("\n  Common Odds Ratio (Mantel-Haenszel):")
         summary = st.summary()
         print(f"    {summary}")
         results["summary"] = str(summary)
-    except Exception as e:
-        print(f"\n  [NOTE] StratifiedTable requires 2x2 tables per stratum.")
-        print(f"         Running pairwise CMH tests instead (bf16 vs each quant).")
+    except Exception:
+        print("\n  [NOTE] StratifiedTable requires 2x2 tables per stratum.")
+        print("         Running pairwise CMH tests instead (bf16 vs each quant).")
 
         # Pairwise: bf16 vs q4_k_m, bf16 vs q8_0
         for q_compare in ["q8_0", "q4_k_m"]:
@@ -343,10 +375,18 @@ def test_cmh(df):
                 sub = df[df["domain"] == domain]
                 bf16_data = sub[sub["quant"] == "bf16"]
                 q_data = sub[sub["quant"] == q_compare]
-                table = np.array([
-                    [bf16_data["successes"].sum(), bf16_data["failures"].sum() + bf16_data["errors"].sum()],
-                    [q_data["successes"].sum(), q_data["failures"].sum() + q_data["errors"].sum()]
-                ])
+                table = np.array(
+                    [
+                        [
+                            bf16_data["successes"].sum(),
+                            bf16_data["failures"].sum() + bf16_data["errors"].sum(),
+                        ],
+                        [
+                            q_data["successes"].sum(),
+                            q_data["failures"].sum() + q_data["errors"].sum(),
+                        ],
+                    ]
+                )
                 tables_2x2.append(table)
 
             try:
@@ -377,6 +417,7 @@ def test_supplementary_metrics(df):
     mean_reward, avg_turns, and completion_rate.
     """
     import math
+
     print(f"\n{SEPARATOR}")
     print("  TEST 6: Supplementary Metrics (LMM, KW, Spearman)")
     print(SEPARATOR)
@@ -385,15 +426,19 @@ def test_supplementary_metrics(df):
     results = {}
 
     for metric in metrics:
-        print(f"\n\n==================== Analyzing Metric: {metric} ====================")
+        print(
+            f"\n\n==================== Analyzing Metric: {metric} ===================="
+        )
         metric_results = {}
 
         # 1. Linear Mixed-Effects Model (LMM)
         print(f"\n  --- LMM for {metric} ---")
         df_lmm = df.dropna(subset=[metric]).copy()
-        df_lmm["quant"] = pd.Categorical(df_lmm["quant"], categories=["bf16", "q8_0", "q4_k_m"])
+        df_lmm["quant"] = pd.Categorical(
+            df_lmm["quant"], categories=["bf16", "q8_0", "q4_k_m"]
+        )
         formula = f"{metric} ~ C(size_num) * C(quant, Treatment('bf16')) + C(domain)"
-        
+
         lmm_results = {}
         try:
             lmm = smf.mixedlm(formula, data=df_lmm, groups=df_lmm["model"])
@@ -408,28 +453,46 @@ def test_supplementary_metrics(df):
 
             fe = lmm_fit.fe_params
             pvals = lmm_fit.pvalues
-            lmm_results["fixed_effects"] = {k: {"coef": float(fe[k]), "p": float(pvals[k])} for k in fe.index}
+            lmm_results["fixed_effects"] = {
+                k: {"coef": float(fe[k]), "p": float(pvals[k])} for k in fe.index
+            }
 
             re_var = float(lmm_fit.cov_re.iloc[0, 0])
             resid_var = float(lmm_fit.scale)
             icc = re_var / (re_var + resid_var)
-            lmm_results["random_effects"] = {"model_var": re_var, "resid_var": resid_var, "icc": icc}
+            lmm_results["random_effects"] = {
+                "model_var": re_var,
+                "resid_var": resid_var,
+                "icc": icc,
+            }
 
             # Simpler model without interaction for LRT
-            formula_reduced = f"{metric} ~ C(size_num) + C(quant, Treatment('bf16')) + C(domain)"
-            lmm_reduced = smf.mixedlm(formula_reduced, data=df_lmm, groups=df_lmm["model"])
+            formula_reduced = (
+                f"{metric} ~ C(size_num) + C(quant, Treatment('bf16')) + C(domain)"
+            )
+            lmm_reduced = smf.mixedlm(
+                formula_reduced, data=df_lmm, groups=df_lmm["model"]
+            )
             lmm_reduced_fit = lmm_reduced.fit(reml=False)
-            lmm_full_ml = smf.mixedlm(formula, data=df_lmm, groups=df_lmm["model"]).fit(reml=False)
+            lmm_full_ml = smf.mixedlm(formula, data=df_lmm, groups=df_lmm["model"]).fit(
+                reml=False
+            )
 
             lr_stat = -2 * (lmm_reduced_fit.llf - lmm_full_ml.llf)
             df_diff = lmm_full_ml.df_modelwc - lmm_reduced_fit.df_modelwc
             lr_p = 1 - stats.chi2.cdf(lr_stat, max(df_diff, 1))
-            lmm_results["lr_test_interaction"] = {"chi2": float(lr_stat), "df": int(df_diff), "p": float(lr_p)}
-            print(f"\n  Likelihood Ratio Test (interaction term): chi2 = {lr_stat:.4f}, df = {df_diff}, p = {lr_p:.6f}")
+            lmm_results["lr_test_interaction"] = {
+                "chi2": float(lr_stat),
+                "df": int(df_diff),
+                "p": float(lr_p),
+            }
+            print(
+                f"\n  Likelihood Ratio Test (interaction term): chi2 = {lr_stat:.4f}, df = {df_diff}, p = {lr_p:.6f}"
+            )
         except Exception as e:
             print(f"  [ERROR] LMM failed for {metric}: {e}")
             lmm_results["error"] = str(e)
-        
+
         metric_results["lmm"] = lmm_results
 
         # 2. Kruskal-Wallis H Test
@@ -443,13 +506,20 @@ def test_supplementary_metrics(df):
             n_total = sum(len(g) for g in quant_groups)
             k = len(quant_groups)  # number of groups
             epsilon_sq = max(0.0, (kw_stat - k + 1)) / (n_total - k)
-            #epsilon_sq = kw_stat / (n_total - 1) if n_total > 1 else 0
-            print(f"    Grouping by Quantization: H = {kw_stat:.4f}, p = {kw_p:.6f}, e^2 = {epsilon_sq:.4f}")
-            kw_results["quant"] = {"H": float(kw_stat), "p": float(kw_p), "epsilon_sq": float(epsilon_sq)}
+            print(
+                f"    Grouping by Quantization: H = {kw_stat:.4f}, p = {kw_p:.6f}, e^2 = {epsilon_sq:.4f}"
+            )
+            kw_results["quant"] = {
+                "H": float(kw_stat),
+                "p": float(kw_p),
+                "epsilon_sq": float(epsilon_sq),
+            }
 
             if HAS_POSTHOCS and kw_p < 0.05:
                 print("      Post-hoc (Dunn's test with Bonferroni):")
-                dunn = sp.posthoc_dunn(df, val_col=metric, group_col="quant", p_adjust="bonferroni")
+                dunn = sp.posthoc_dunn(
+                    df, val_col=metric, group_col="quant", p_adjust="bonferroni"
+                )
                 print(dunn.to_string())
                 kw_results["quant_dunn"] = dunn.to_dict()
 
@@ -460,13 +530,20 @@ def test_supplementary_metrics(df):
             n_total = sum(len(g) for g in size_groups)
             k = len(size_groups)  # number of groups
             epsilon_sq = max(0.0, (kw_stat - k + 1)) / (n_total - k)
-            #epsilon_sq = kw_stat / (n_total - 1) if n_total > 1 else 0
-            print(f"    Grouping by Size: H = {kw_stat:.4f}, p = {kw_p:.6f}, e^2 = {epsilon_sq:.4f}")
-            kw_results["size"] = {"H": float(kw_stat), "p": float(kw_p), "epsilon_sq": float(epsilon_sq)}
+            print(
+                f"    Grouping by Size: H = {kw_stat:.4f}, p = {kw_p:.6f}, e^2 = {epsilon_sq:.4f}"
+            )
+            kw_results["size"] = {
+                "H": float(kw_stat),
+                "p": float(kw_p),
+                "epsilon_sq": float(epsilon_sq),
+            }
 
             if HAS_POSTHOCS and kw_p < 0.05:
                 print("      Post-hoc (Dunn's test with Bonferroni):")
-                dunn = sp.posthoc_dunn(df, val_col=metric, group_col="size", p_adjust="bonferroni")
+                dunn = sp.posthoc_dunn(
+                    df, val_col=metric, group_col="size", p_adjust="bonferroni"
+                )
                 print(dunn.to_string())
                 kw_results["size_dunn"] = dunn.to_dict()
 
@@ -477,9 +554,14 @@ def test_supplementary_metrics(df):
             n_total = sum(len(g) for g in model_groups)
             k = len(model_groups)  # number of groups
             epsilon_sq = max(0.0, (kw_stat - k + 1)) / (n_total - k)
-            #epsilon_sq = kw_stat / (n_total - 1) if n_total > 1 else 0
-            print(f"    Grouping by Model Family: H = {kw_stat:.4f}, p = {kw_p:.6f}, e^2 = {epsilon_sq:.4f}")
-            kw_results["model"] = {"H": float(kw_stat), "p": float(kw_p), "epsilon_sq": float(epsilon_sq)}
+            print(
+                f"    Grouping by Model Family: H = {kw_stat:.4f}, p = {kw_p:.6f}, e^2 = {epsilon_sq:.4f}"
+            )
+            kw_results["model"] = {
+                "H": float(kw_stat),
+                "p": float(kw_p),
+                "epsilon_sq": float(epsilon_sq),
+            }
 
         metric_results["kruskal_wallis"] = kw_results
 
@@ -490,7 +572,11 @@ def test_supplementary_metrics(df):
         if len(df_clean) >= 2:
             rho, p = stats.spearmanr(df_clean["size_num"], df_clean[metric])
             print(f"    Overall: rho = {rho:.4f}, p = {p:.6f}, n = {len(df_clean)}")
-            spearman_results["overall"] = {"rho": float(rho), "p": float(p), "n": int(len(df_clean))}
+            spearman_results["overall"] = {
+                "rho": float(rho),
+                "p": float(p),
+                "n": int(len(df_clean)),
+            }
 
             # Stratified by quantization level
             print("    Stratified by Quantization:")
@@ -498,8 +584,14 @@ def test_supplementary_metrics(df):
                 sub = df_clean[df_clean["quant"] == quant_level]
                 if len(sub) >= 2:
                     rho_q, p_q = stats.spearmanr(sub["size_num"], sub[metric])
-                    print(f"      {quant_level:<8}: rho = {rho_q:.4f}, p = {p_q:.6f}, n = {len(sub)}")
-                    spearman_results[quant_level] = {"rho": float(rho_q), "p": float(p_q), "n": int(len(sub))}
+                    print(
+                        f"      {quant_level:<8}: rho = {rho_q:.4f}, p = {p_q:.6f}, n = {len(sub)}"
+                    )
+                    spearman_results[quant_level] = {
+                        "rho": float(rho_q),
+                        "p": float(p_q),
+                        "n": int(len(sub)),
+                    }
 
             # Stratified by domain
             print("    Stratified by Domain:")
@@ -507,8 +599,14 @@ def test_supplementary_metrics(df):
                 sub = df_clean[df_clean["domain"] == domain]
                 if len(sub) >= 2:
                     rho_d, p_d = stats.spearmanr(sub["size_num"], sub[metric])
-                    print(f"      {domain:<10}: rho = {rho_d:.4f}, p = {p_d:.6f}, n = {len(sub)}")
-                    spearman_results[f"domain_{domain}"] = {"rho": float(rho_d), "p": float(p_d), "n": int(len(sub))}
+                    print(
+                        f"      {domain:<10}: rho = {rho_d:.4f}, p = {p_d:.6f}, n = {len(sub)}"
+                    )
+                    spearman_results[f"domain_{domain}"] = {
+                        "rho": float(rho_d),
+                        "p": float(p_d),
+                        "n": int(len(sub)),
+                    }
 
         metric_results["spearman"] = spearman_results
         results[metric] = metric_results
