@@ -9,6 +9,7 @@ All statistical analyses for the paper. Each script corresponds to one research 
 | `rq1_tests.py` | RQ1: effect of scale & quantization on success rate | §V-A |
 | `rq2_tests.py` | RQ2: failure composition under quantization | §V-B |
 | `rq3_tests.py` | RQ3: effectiveness-efficiency trade-off | §V-C |
+| `rq3_4bit_vs_8bit.py` | RQ3 supplement: direct 4-bit vs 8-bit paired comparison (energy, VRAM, latency, throughput, success) | §V-C |
 | `tost_equivalence.py` | Task-level paired TOST equivalence analysis | §V-A (TOST subsection) |
 | `deployment_metrics.py` | Operational latency, throughput, GPU memory | §V-C (deployment table) |
 | `behavioral_consistency.py` | Outcome flips (McNemar) + interaction turns | §V-A (discordance), §V-B (turns) |
@@ -27,6 +28,7 @@ python run_all_tests.py
 python run_all_tests.py rq1
 python run_all_tests.py rq2
 python run_all_tests.py rq3
+python run_all_tests.py rq3_48    # direct 4-bit vs 8-bit comparison
 python run_all_tests.py tost
 python run_all_tests.py deployment
 python run_all_tests.py behavior
@@ -42,6 +44,7 @@ statistical_tests/output/
 ├── rq1_results.json             # Tests 1–5
 ├── rq2_results.json             # Tests 6–10
 ├── rq3_results.json             # Tests 11–15
+├── rq3_4bit_vs_8bit_results.json  # Direct 4-bit vs 8-bit paired comparison
 ├── all_results_combined.json    # All tests merged
 ├── tost_results.json            # Task-level TOST (all cells)
 ├── tost_summary_table.csv       # Per-cell equivalence summary
