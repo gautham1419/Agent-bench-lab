@@ -18,14 +18,15 @@ Metrics compared (paired across 24 model-domain combinations):
 
 Outlier note
 ------------
-The Ministral3-8B / OS / 8-bit configuration has an anomalous mean
-task latency (3,584.6 s) caused by a Docker-container hang in replicate
-run 2 (wall-clock 1,444,141 s vs 2,482 s and 5,314 s for runs 1 and 3).
-Energy, VRAM, and success-rate figures for that cell are unaffected and
-are included in those paired comparisons.  Latency and throughput pairs
-for Ministral3-8B / OS are excluded from the latency and throughput
-Wilcoxon tests (n = 23 instead of 24); this is noted in the output.
-See also Table I footnote (†) in the paper.
+A stale folder timestamp in Ministral3-8B / OS / 8-bit run 2 previously
+caused an anomalous wall-clock (1,444,141 s).  This was identified as a
+data-pipeline artefact (the output folder was created weeks before the
+run executed) and corrected in deployment_metrics.py via a two-pass
+strategy that estimates the true start time from the first-task
+completion timestamp plus the average task-1 duration across other valid
+runs of the same model.  The corrected value (≈ 5,472 s, mean-task ≈ 40 s)
+is consistent with run 3 (≈ 5,314 s, 39 s).  All 24 pairs are therefore
+included in every Wilcoxon test in this file.
 
 Outputs
 -------
@@ -47,8 +48,7 @@ from scipy import stats
 
 SEPARATOR = "=" * 72
 
-# ── Outlier configuration excluded from latency / throughput comparisons ──
-LATENCY_OUTLIER = ("ministral3-8B", "OS")  # model_key, Domain
+# (No outlier exclusion needed — stale-folder artefact corrected upstream.)
 
 
 # ── helpers ───────────────────────────────────────────────────────────────
@@ -167,11 +167,7 @@ def run_rq3_4bit_vs_8bit() -> dict:
     print(f"\n{SEPARATOR}")
     print("  RQ3 SUPPLEMENT: Direct 4-bit versus 8-bit Efficiency Comparison")
     print(SEPARATOR)
-    print(
-        "\n  24 model-domain pairs (6 models × 4 domains).\n"
-        f"  Latency / throughput: n=23 ('{LATENCY_OUTLIER[0]} / {LATENCY_OUTLIER[1]}'"
-        " 8-bit excluded — Docker-container hang; see deployment_table.csv footnote)."
-    )
+    print("\n  24 model-domain pairs (6 models × 4 domains), all included.")
 
     df = _load_deployment_table()
     piv = _pivot(df)
@@ -198,32 +194,25 @@ def run_rq3_4bit_vs_8bit() -> dict:
         "Peak GPU memory (MiB)",
     )
 
-    # ── Latency (outlier excluded) ───────────────────────────────────────
+    # ── Latency (all n=24) ───────────────────────────────────────────────
     print(f"\n{SEPARATOR}")
-    print("  Latency (s)  [lower is better; n=23, outlier excluded]")
+    print("  Latency (s)  [lower is better; n=24]")
     print(SEPARATOR)
-    mask_lat = ~(
-        (piv["model_key"] == LATENCY_OUTLIER[0]) & (piv["Domain"] == LATENCY_OUTLIER[1])
-    )
     results["latency"] = _wilcoxon_lower_better(
-        piv.loc[mask_lat, "Wall-Clock/Task (s)_4bit"].values,
-        piv.loc[mask_lat, "Wall-Clock/Task (s)_8bit"].values,
+        piv["Wall-Clock/Task (s)_4bit"].values,
+        piv["Wall-Clock/Task (s)_8bit"].values,
         "Mean task wall-clock (s)",
     )
-    results["latency"]["outlier_excluded"] = (
-        f"{LATENCY_OUTLIER[0]} / {LATENCY_OUTLIER[1]} (Docker-container hang)"
-    )
 
-    # ── Throughput (outlier excluded) ────────────────────────────────────
+    # ── Throughput (all n=24) ────────────────────────────────────────────
     print(f"\n{SEPARATOR}")
-    print("  Throughput (t/min)  [higher is better; n=23, outlier excluded]")
+    print("  Throughput (t/min)  [higher is better; n=24]")
     print(SEPARATOR)
     results["throughput"] = _wilcoxon_higher_better(
-        piv.loc[mask_lat, "Throughput (tasks/min)_4bit"].values,
-        piv.loc[mask_lat, "Throughput (tasks/min)_8bit"].values,
+        piv["Throughput (tasks/min)_4bit"].values,
+        piv["Throughput (tasks/min)_8bit"].values,
         "Effective throughput (t/min)",
     )
-    results["throughput"]["outlier_excluded"] = results["latency"]["outlier_excluded"]
 
     # ── Success rate (two-sided) ─────────────────────────────────────────
     print(f"\n{SEPARATOR}")
@@ -264,12 +253,12 @@ def run_rq3_4bit_vs_8bit() -> dict:
     print(
         f"  Latency:    {results['latency']['median_pct_savings']:.1f}% median saving,"
         f"  p={results['latency']['p_value']:.4f},  r={results['latency']['rank_biserial_r']:.3f},"
-        f"  {results['latency']['n_favoring_4bit']}/23 pairs favour 4-bit"
+        f"  {results['latency']['n_favoring_4bit']}/{results['latency']['n']} pairs favour 4-bit"
     )
     print(
         f"  Throughput: {results['throughput']['median_pct_gain']:.1f}% median gain,"
         f"  p={results['throughput']['p_value']:.4f},"
-        f"  {results['throughput']['n_favoring_4bit']}/23 pairs favour 4-bit"
+        f"  {results['throughput']['n_favoring_4bit']}/{results['throughput']['n']} pairs favour 4-bit"
     )
     print(
         f"  Success:    {results['success_rate']['median_diff_pp']:.2f} pp median diff,"

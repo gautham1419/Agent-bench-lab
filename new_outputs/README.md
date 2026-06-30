@@ -2,6 +2,36 @@
 
 This directory contains the raw output of all 216 agent-environment runs.
 
+## Data Correction Note
+
+One folder has a stale leading timestamp that does not reflect the actual
+experiment start time:
+
+```
+2026-03-21-23-16-36_-ollama-ministral3-8b-reasoning-q8_0-run2/
+```
+
+This folder was created on **2026-03-21** but the run did not execute until
+**2026-04-07** (verified from `runs.jsonl` task-completion timestamps). Using
+the folder name as the start time naïvely produced a wall-clock of
+**1,444,141 s (≈ 17 days)**, which is a data-pipeline artefact, not a
+runtime anomaly. The run itself completed normally.
+
+The fix is implemented in `statistical_tests/deployment_metrics.py` via a
+two-pass strategy:
+
+1. For every *valid* run (folder timestamp within 1 hour of first-task
+   completion) compute **task-1 duration** = first-task-timestamp −
+   folder-timestamp.
+2. Build a per-`(model, size, quant)` average task-1 duration from all valid
+   runs of the same configuration.
+3. For the affected run, estimate the true start as:
+   `corrected_start = first_task_timestamp − avg_task1_duration`
+
+The corrected wall-clock for this run is **≈ 5,472 s / mean-task ≈ 40 s**,
+consistent with replicate 3 (5,314 s / 39 s). All 24 model-domain pairs are
+therefore used in every paired statistical test in the paper.
+
 ## Folder Naming Convention
 
 ```

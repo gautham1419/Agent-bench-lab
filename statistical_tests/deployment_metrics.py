@@ -148,8 +148,8 @@ def get_domain(run_folder: Path) -> str | None:
 # ── per-run metric extraction ──────────────────────────────────────────────
 
 
-def extract_run_metrics(folder: Path) -> dict | None:
-    """Return deployment metrics for a single run folder."""
+def extract_run_raw(folder: Path) -> dict | None:
+    """Extract raw timestamps and resource data from a run folder (no wall-clock yet)."""
     meta = parse_run_metadata(folder.name)
     if meta is None:
         return None
@@ -162,14 +162,12 @@ def extract_run_metrics(folder: Path) -> dict | None:
     if domain is None:
         return None
 
-    # resource_metrics.json
     rm_file = folder / "resource_metrics.json"
     if not rm_file.exists():
         return None
     with open(rm_file) as f:
         rm = json.load(f)
 
-    # runs.jsonl – collect task completion timestamps
     agent_dirs = [p for p in folder.iterdir() if p.is_dir()]
     if not agent_dirs:
         return None
@@ -181,13 +179,11 @@ def extract_run_metrics(folder: Path) -> dict | None:
         return None
 
     timestamps_ms = []
-    total_tasks = 0
     with open(runs_file, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
-            total_tasks += 1
             d = json.loads(line)
             t = d.get("time")
             if t and "timestamp" in t:
@@ -196,10 +192,25 @@ def extract_run_metrics(folder: Path) -> dict | None:
     if not timestamps_ms:
         return None
 
-    # wall-clock: folder start → last task completion
-    folder_start_ms = folder_start_dt.timestamp() * 1000
+    return {
+        "model": meta["model"],
+        "size": meta["size"],
+        "quant": meta["quant"],
+        "domain": domain,
+        "run": meta["run"],
+        "folder_start_ms": folder_start_dt.timestamp() * 1000,
+        "timestamps_ms": timestamps_ms,
+        "rm": rm,
+    }
+
+
+def _finalize_run_metrics(raw: dict, corrected_start_ms: float) -> dict:
+    """Compute wall-clock and derived metrics given a (possibly corrected) start time."""
+    timestamps_ms = raw["timestamps_ms"]
+    rm = raw["rm"]
+
     last_ts_ms = max(timestamps_ms)
-    wall_clock_s = (last_ts_ms - folder_start_ms) / 1000.0
+    wall_clock_s = (last_ts_ms - corrected_start_ms) / 1000.0
     if wall_clock_s <= 0:
         wall_clock_s = (max(timestamps_ms) - min(timestamps_ms)) / 1000.0
 
@@ -210,11 +221,11 @@ def extract_run_metrics(folder: Path) -> dict | None:
     mean_task_s = wall_clock_s / tasks_completed if tasks_completed > 0 else np.nan
 
     return {
-        "model": meta["model"],
-        "size": meta["size"],
-        "quant": meta["quant"],
-        "domain": domain,
-        "run": meta["run"],
+        "model": raw["model"],
+        "size": raw["size"],
+        "quant": raw["quant"],
+        "domain": raw["domain"],
+        "run": raw["run"],
         "wall_clock_s": round(wall_clock_s, 1),
         "tasks_completed": tasks_completed,
         "throughput_tpm": round(throughput_tpm, 3),
@@ -226,17 +237,56 @@ def extract_run_metrics(folder: Path) -> dict | None:
     }
 
 
+# Threshold: if the gap between folder timestamp and first task completion
+# exceeds this, the folder timestamp is considered stale and will be corrected.
+_STALE_FOLDER_THRESHOLD_S = 3600  # 1 hour
+
+
 # ── build dataset ──────────────────────────────────────────────────────────
 
 
 def build_deployment_dataset() -> pd.DataFrame:
-    rows = []
+    # Pass 1: collect raw data for all runs
+    raw_runs = []
     for folder in OUTPUTS_DIR.iterdir():
         if not folder.is_dir():
             continue
-        rec = extract_run_metrics(folder)
-        if rec is not None:
-            rows.append(rec)
+        raw = extract_run_raw(folder)
+        if raw is not None:
+            raw_runs.append(raw)
+
+    # Pass 1b: compute task-1 duration for valid (non-stale) runs.
+    # task-1 duration ≈ first_task_completion − folder_start, valid only when
+    # the folder timestamp is fresh (gap < threshold).
+    from collections import defaultdict
+
+    task1_durations: dict[tuple, list[float]] = defaultdict(list)
+    for raw in raw_runs:
+        first_ts_ms = min(raw["timestamps_ms"])
+        gap_s = (first_ts_ms - raw["folder_start_ms"]) / 1000.0
+        if 0 <= gap_s < _STALE_FOLDER_THRESHOLD_S:
+            key = (raw["model"], raw["size"], raw["quant"])
+            task1_durations[key].append(gap_s)
+
+    avg_task1: dict[tuple, float] = {
+        k: sum(v) / len(v) for k, v in task1_durations.items()
+    }
+
+    # Pass 2: finalise each run, correcting stale-folder starts.
+    rows = []
+    for raw in raw_runs:
+        first_ts_ms = min(raw["timestamps_ms"])
+        gap_s = (first_ts_ms - raw["folder_start_ms"]) / 1000.0
+        if gap_s >= _STALE_FOLDER_THRESHOLD_S:
+            # Folder timestamp is stale. Estimate true start as:
+            #   first_task_completion − avg_task1_duration_for_this_model
+            key = (raw["model"], raw["size"], raw["quant"])
+            task1_est_s = avg_task1.get(key, 0.0)
+            corrected_start_ms = first_ts_ms - task1_est_s * 1000.0
+        else:
+            corrected_start_ms = raw["folder_start_ms"]
+        rows.append(_finalize_run_metrics(raw, corrected_start_ms))
+
     df = pd.DataFrame(rows)
     return df
 

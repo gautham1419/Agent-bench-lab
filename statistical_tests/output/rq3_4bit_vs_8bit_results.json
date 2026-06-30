@@ -69,11 +69,11 @@
       ]
     },
     "latency": {
-      "n": 23,
-      "median_pct_savings": 10.622710622710631,
-      "wilcoxon_W": 77.0,
-      "p_value": 0.03176817781232539,
-      "rank_biserial_r": 0.44202898550724634,
+      "n": 24,
+      "median_pct_savings": 10.574513206092163,
+      "wilcoxon_W": 85.0,
+      "p_value": 0.0316319394357606,
+      "rank_biserial_r": 0.43333333333333335,
       "n_favoring_4bit": 16,
       "all_pct_savings": [
         -85.0,
@@ -82,6 +82,7 @@
         -10.66,
         -7.24,
         -3.26,
+        -1.86,
         -0.93,
         5.98,
         5.99,
@@ -99,16 +100,15 @@
         35.74,
         37.77,
         59.13
-      ],
-      "outlier_excluded": "ministral3-8B / OS (Docker-container hang)"
+      ]
     },
     "throughput": {
-      "n": 23,
-      "median_pct_gain": 11.904761904761903,
-      "wilcoxon_W": 197.0,
-      "p_value": 0.011044664034125242,
-      "rank_biserial_r": 0.42753623188405787,
-      "n_favoring_4bit": 16,
+      "n": 24,
+      "median_pct_gain": 11.861471861471856,
+      "wilcoxon_W": 214.0,
+      "p_value": 0.010401621238774179,
+      "rank_biserial_r": 0.42666666666666675,
+      "n_favoring_4bit": 17,
       "all_pct_gains": [
         -46.0,
         -32.48,
@@ -117,6 +117,7 @@
         -6.96,
         -2.76,
         0.0,
+        1.85,
         6.11,
         6.61,
         9.75,
@@ -133,8 +134,7 @@
         37.14,
         61.63,
         148.15
-      ],
-      "outlier_excluded": "ministral3-8B / OS (Docker-container hang)"
+      ]
     },
     "success_rate": {
       "n": 24,
