@@ -9,6 +9,7 @@ Usage:
     python run_all_tests.py rq1      # Run only RQ1
     python run_all_tests.py rq2      # Run only RQ2
     python run_all_tests.py rq3      # Run only RQ3
+    python run_all_tests.py rq3_48   # Run 4-bit vs 8-bit efficiency comparison (RQ3 supplement)
     python run_all_tests.py tost       # Run TOST equivalence analysis
     python run_all_tests.py deployment # Run operational deployment metrics
     python run_all_tests.py behavior   # Run behavioral consistency analysis
@@ -80,6 +81,14 @@ def main():
         t0 = time.time()
         run_deployment_metrics()
         print(f"\n  [Deployment metrics completed in {time.time() - t0:.1f}s]")
+
+    # Direct 4-bit vs 8-bit efficiency comparison (RQ3 supplement)
+    if target in ("all", "rq3_48"):
+        from rq3_4bit_vs_8bit import run_rq3_4bit_vs_8bit
+
+        t0 = time.time()
+        all_results["rq3_4bit_vs_8bit"] = run_rq3_4bit_vs_8bit()
+        print(f"\n  [4-bit vs 8-bit comparison completed in {time.time() - t0:.1f}s]")
 
     # Behavioral consistency (outcome flips + interaction turns)
     if target in ("all", "behavior"):

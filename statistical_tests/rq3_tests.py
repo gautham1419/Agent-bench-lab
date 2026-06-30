@@ -13,22 +13,22 @@ Tests implemented:
 """
 
 import warnings
+
 warnings.filterwarnings("ignore")
 
 import numpy as np
 import pandas as pd
-from scipy import stats
-import statsmodels.api as sm
 import statsmodels.formula.api as smf
-from itertools import combinations
+from scipy import stats
 
 try:
     import scikit_posthocs as sp
+
     HAS_POSTHOCS = True
 except ImportError:
     HAS_POSTHOCS = False
 
-from data_loader import load_run_data, get_matched_data, save_results
+from data_loader import load_run_data, save_results
 
 SEPARATOR = "=" * 72
 
@@ -48,18 +48,28 @@ def test_pareto(df):
     results = {}
 
     # Average across runs for each configuration
-    agg = df.groupby(["model", "size", "quant", "domain"]).agg(
-        success_rate=("success_rate", "mean"),
-        energy_per_task=("energy_per_task", "mean"),
-    ).reset_index()
+    agg = (
+        df.groupby(["model", "size", "quant", "domain"])
+        .agg(
+            success_rate=("success_rate", "mean"),
+            energy_per_task=("energy_per_task", "mean"),
+        )
+        .reset_index()
+    )
     agg["config"] = agg["model"] + "-" + agg["size"] + "-" + agg["quant"]
 
     # Also compute overall (across domains)
-    overall = df.groupby(["model", "size", "quant"]).agg(
-        success_rate=("success_rate", "mean"),
-        energy_per_task=("energy_per_task", "mean"),
-    ).reset_index()
-    overall["config"] = overall["model"] + "-" + overall["size"] + "-" + overall["quant"]
+    overall = (
+        df.groupby(["model", "size", "quant"])
+        .agg(
+            success_rate=("success_rate", "mean"),
+            energy_per_task=("energy_per_task", "mean"),
+        )
+        .reset_index()
+    )
+    overall["config"] = (
+        overall["model"] + "-" + overall["size"] + "-" + overall["quant"]
+    )
 
     def find_pareto(data):
         """Find Pareto-optimal points (max success, min energy)."""
@@ -70,7 +80,11 @@ def test_pareto(df):
             for j in range(len(data)):
                 if i != j:
                     # j dominates i if j has >= success AND <= energy (with at least one strict)
-                    if sr[j] >= sr[i] and ep[j] <= ep[i] and (sr[j] > sr[i] or ep[j] < ep[i]):
+                    if (
+                        sr[j] >= sr[i]
+                        and ep[j] <= ep[i]
+                        and (sr[j] > sr[i] or ep[j] < ep[i])
+                    ):
                         is_pareto[i] = False
                         break
         return is_pareto
@@ -78,9 +92,15 @@ def test_pareto(df):
     # Overall Pareto frontier
     print("\n  --- Overall Pareto Frontier (across all domains) ---")
     overall_pareto = find_pareto(overall)
-    pareto_configs = overall[overall_pareto].sort_values("success_rate", ascending=False)
-    print(f"  {pareto_configs[['config', 'success_rate', 'energy_per_task']].to_string(index=False)}")
-    results["overall_pareto"] = pareto_configs[["config", "success_rate", "energy_per_task"]].to_dict("records")
+    pareto_configs = overall[overall_pareto].sort_values(
+        "success_rate", ascending=False
+    )
+    print(
+        f"  {pareto_configs[['config', 'success_rate', 'energy_per_task']].to_string(index=False)}"
+    )
+    results["overall_pareto"] = pareto_configs[
+        ["config", "success_rate", "energy_per_task"]
+    ].to_dict("records")
 
     # Pareto by domain
     print("\n  --- Pareto Frontier by Domain ---")
@@ -90,8 +110,12 @@ def test_pareto(df):
         is_pareto = find_pareto(dom_data)
         pareto_dom = dom_data[is_pareto].sort_values("success_rate", ascending=False)
         print(f"\n  {domain}:")
-        print(f"  {pareto_dom[['config', 'success_rate', 'energy_per_task']].to_string(index=False)}")
-        domain_pareto[domain] = pareto_dom[["config", "success_rate", "energy_per_task"]].to_dict("records")
+        print(
+            f"  {pareto_dom[['config', 'success_rate', 'energy_per_task']].to_string(index=False)}"
+        )
+        domain_pareto[domain] = pareto_dom[
+            ["config", "success_rate", "energy_per_task"]
+        ].to_dict("records")
     results["domain_pareto"] = domain_pareto
 
     # Hypervolume indicator (reference point: 0 success, max energy)
@@ -101,7 +125,9 @@ def test_pareto(df):
     hv = 0.0
     prev_energy = ref_energy
     for _, row in pareto_points.iterrows():
-        hv += (row["success_rate"] - ref_success) * (prev_energy - row["energy_per_task"])
+        hv += (row["success_rate"] - ref_success) * (
+            prev_energy - row["energy_per_task"]
+        )
         prev_energy = row["energy_per_task"]
     # Normalize by reference area
     max_hv = (1.0 - ref_success) * ref_energy
@@ -142,7 +168,11 @@ def test_manova(df):
     # (simplified check using Levene's on each DV)
     print("\n  [Assumption Check] Levene's test per DV:")
     for dv in ["success_rate", "log_energy"]:
-        groups = [grp[dv].dropna().values for _, grp in df_manova.groupby("quant") if len(grp) >= 2]
+        groups = [
+            grp[dv].dropna().values
+            for _, grp in df_manova.groupby("quant")
+            if len(grp) >= 2
+        ]
         lev_stat, lev_p = stats.levene(*groups)
         print(f"    {dv}: F={lev_stat:.4f}, p={lev_p:.4f}")
 
@@ -152,23 +182,33 @@ def test_manova(df):
 
     try:
         from statsmodels.multivariate.manova import MANOVA
+
         manova = MANOVA.from_formula(formula, data=df_manova)
         mv_result = manova.mv_test()
-        print(f"\n  MANOVA Results (effect of Quantization):")
+        print("\n  MANOVA Results (effect of Quantization):")
         print(mv_result.summary())
 
         # Extract test statistics
         quant_results = mv_result.results.get("C(quant)", None)
         if quant_results:
             stat_table = quant_results["stat"]
-            for test_name in ["Pillai's trace", "Wilks' lambda", "Hotelling-Lawley trace", "Roy's greatest root"]:
+            for test_name in [
+                "Pillai's trace",
+                "Wilks' lambda",
+                "Hotelling-Lawley trace",
+                "Roy's greatest root",
+            ]:
                 if test_name in stat_table.index:
                     val = stat_table.loc[test_name, "Value"]
                     f_val = stat_table.loc[test_name, "F Value"]
                     p_val = stat_table.loc[test_name, "Pr > F"]
-                    print(f"    {test_name}: value={val:.4f}, F={f_val:.4f}, p={p_val:.6f}")
+                    print(
+                        f"    {test_name}: value={val:.4f}, F={f_val:.4f}, p={p_val:.6f}"
+                    )
                     results[test_name.replace("'", "").replace(" ", "_")] = {
-                        "value": val, "F": f_val, "p": p_val
+                        "value": val,
+                        "F": f_val,
+                        "p": p_val,
                     }
 
     except Exception as e:
@@ -218,8 +258,10 @@ def test_energy_performance_regression(df):
         results[f"spearman_{quant}"] = {"rho": rho, "p": p, "n": len(sub)}
 
     # Mixed-effects regression: success_rate ~ log_energy * quant + (1|model)
-    print(f"\n  --- Mixed-Effects Regression ---")
-    df_reg["quant"] = pd.Categorical(df_reg["quant"], categories=["bf16", "q8_0", "q4_k_m"])
+    print("\n  --- Mixed-Effects Regression ---")
+    df_reg["quant"] = pd.Categorical(
+        df_reg["quant"], categories=["bf16", "q8_0", "q4_k_m"]
+    )
     formula = "success_rate ~ log_energy * C(quant, Treatment('bf16')) + C(domain)"
 
     try:
@@ -229,12 +271,22 @@ def test_energy_performance_regression(df):
 
         # Key: interaction terms tell us if the energy→success slope differs by quant
         print("\n  Interaction term interpretation:")
-        print("  (If significant, the energy-performance trade-off differs by quant level)")
+        print(
+            "  (If significant, the energy-performance trade-off differs by quant level)"
+        )
         for param in fit.fe_params.index:
             if ":" in param:
                 coef = fit.fe_params[param]
                 pval = fit.pvalues[param]
-                sig = "***" if pval < 0.001 else "**" if pval < 0.01 else "*" if pval < 0.05 else "ns"
+                sig = (
+                    "***"
+                    if pval < 0.001
+                    else "**"
+                    if pval < 0.01
+                    else "*"
+                    if pval < 0.05
+                    else "ns"
+                )
                 print(f"    {param}: coef={coef:.6f}, p={pval:.6f} {sig}")
 
         results["lmm_aic"] = fit.aic
@@ -278,32 +330,40 @@ def test_efficiency_ratio(df):
     results["descriptives"] = desc.to_dict()
 
     # Kruskal-Wallis
-    quant_groups = [grp["efficiency_ratio"].dropna().values
-                    for _, grp in df_eff.groupby("quant")]
+    quant_groups = [
+        grp["efficiency_ratio"].dropna().values for _, grp in df_eff.groupby("quant")
+    ]
     kw_stat, kw_p = stats.kruskal(*quant_groups)
     n_total = sum(len(g) for g in quant_groups)
     k = len(quant_groups)
     epsilon_sq = (kw_stat - k + 1) / (n_total - k)
 
-    print(f"\n  Kruskal-Wallis H test:")
+    print("\n  Kruskal-Wallis H test:")
     print(f"    H = {kw_stat:.4f}, p = {kw_p:.6f}, ε² = {epsilon_sq:.4f}")
     results["kruskal_wallis"] = {"H": kw_stat, "p": kw_p, "epsilon_sq": epsilon_sq}
 
     if HAS_POSTHOCS and kw_p < 0.05:
-        dunn = sp.posthoc_dunn(df_eff, val_col="efficiency_ratio",
-                               group_col="quant", p_adjust="bonferroni")
-        print(f"    Dunn's post-hoc (Bonferroni):")
+        dunn = sp.posthoc_dunn(
+            df_eff, val_col="efficiency_ratio", group_col="quant", p_adjust="bonferroni"
+        )
+        print("    Dunn's post-hoc (Bonferroni):")
         print(f"    {dunn.to_string()}")
         results["dunn"] = dunn.to_dict()
 
     # Paired Wilcoxon: bf16 vs each quantized variant (matched by model-size-domain)
-    print(f"\n  Paired Wilcoxon Signed-Rank (matched by model-size-domain):")
-    pivoted = df_eff.groupby(["model", "size", "domain", "quant"])["efficiency_ratio"].mean()
-    pivoted = pivoted.reset_index().pivot_table(
-        index=["model", "size", "domain"],
-        columns="quant",
-        values="efficiency_ratio"
-    ).dropna()
+    print("\n  Paired Wilcoxon Signed-Rank (matched by model-size-domain):")
+    pivoted = df_eff.groupby(["model", "size", "domain", "quant"])[
+        "efficiency_ratio"
+    ].mean()
+    pivoted = (
+        pivoted.reset_index()
+        .pivot_table(
+            index=["model", "size", "domain"],
+            columns="quant",
+            values="efficiency_ratio",
+        )
+        .dropna()
+    )
 
     for q_compare in ["q8_0", "q4_k_m"]:
         if "bf16" in pivoted.columns and q_compare in pivoted.columns:
@@ -319,10 +379,16 @@ def test_efficiency_ratio(df):
                     n = len(diff)
                     z = stats.norm.ppf(1 - w_p / 2)
                     r = z / np.sqrt(n)
-                    print(f"    bf16 vs {q_compare}: W={w_stat:.1f}, p={w_p:.6f}, "
-                          f"median_diff={median_diff:.6f}, r={r:.4f}")
+                    print(
+                        f"    bf16 vs {q_compare}: W={w_stat:.1f}, p={w_p:.6f}, "
+                        f"median_diff={median_diff:.6f}, r={r:.4f}"
+                    )
                     results[f"wilcoxon_bf16_vs_{q_compare}"] = {
-                        "W": w_stat, "p": w_p, "median_diff": median_diff, "r": r, "n": n
+                        "W": w_stat,
+                        "p": w_p,
+                        "median_diff": median_diff,
+                        "r": r,
+                        "n": n,
                     }
                 except Exception as e:
                     print(f"    bf16 vs {q_compare}: {e}")
@@ -345,16 +411,22 @@ def test_relative_change(df):
     results = {}
 
     # Average across runs for each (model, size, quant, domain)
-    agg = df.groupby(["model", "size", "quant", "domain"]).agg(
-        success_rate=("success_rate", "mean"),
-        energy_per_task=("energy_per_task", "mean"),
-    ).reset_index()
+    agg = (
+        df.groupby(["model", "size", "quant", "domain"])
+        .agg(
+            success_rate=("success_rate", "mean"),
+            energy_per_task=("energy_per_task", "mean"),
+        )
+        .reset_index()
+    )
 
     # Pivot to get bf16 as baseline
-    sr_pivot = agg.pivot_table(index=["model", "size", "domain"],
-                                columns="quant", values="success_rate")
-    en_pivot = agg.pivot_table(index=["model", "size", "domain"],
-                                columns="quant", values="energy_per_task")
+    sr_pivot = agg.pivot_table(
+        index=["model", "size", "domain"], columns="quant", values="success_rate"
+    )
+    en_pivot = agg.pivot_table(
+        index=["model", "size", "domain"], columns="quant", values="energy_per_task"
+    )
 
     for q_compare in ["q8_0", "q4_k_m"]:
         print(f"\n  --- bf16 → {q_compare} ---")
@@ -374,29 +446,29 @@ def test_relative_change(df):
         delta_en = en_base - en_quant  # positive = energy saving
 
         # Relative changes (avoid division by zero)
-        rel_sr = np.where(sr_base > 0.001,
-                          (sr_quant - sr_base) / sr_base,
-                          np.where(sr_quant > sr_base, 1.0, 0.0))
-        rel_en = np.where(en_base > 0.001,
-                          (en_base - en_quant) / en_base,
-                          0.0)
+        rel_sr = np.where(
+            sr_base > 0.001,
+            (sr_quant - sr_base) / sr_base,
+            np.where(sr_quant > sr_base, 1.0, 0.0),
+        )
+        rel_en = np.where(en_base > 0.001, (en_base - en_quant) / en_base, 0.0)
 
-        print(f"\n  Success Rate Change (absolute):")
+        print("\n  Success Rate Change (absolute):")
         print(f"    Mean Δ = {delta_sr.mean():.6f}")
         print(f"    Median Δ = {delta_sr.median():.6f}")
         print(f"    Std = {delta_sr.std():.6f}")
         print(f"    Range = [{delta_sr.min():.6f}, {delta_sr.max():.6f}]")
 
-        print(f"\n  Energy Savings (absolute, Joules/task):")
+        print("\n  Energy Savings (absolute, Joules/task):")
         print(f"    Mean savings = {delta_en.mean():.2f}")
         print(f"    Median savings = {delta_en.median():.2f}")
 
-        print(f"\n  Relative Changes:")
-        print(f"    Success rate change: median = {np.median(rel_sr)*100:.2f}%")
-        print(f"    Energy savings: median = {np.median(rel_en)*100:.2f}%")
+        print("\n  Relative Changes:")
+        print(f"    Success rate change: median = {np.median(rel_sr) * 100:.2f}%")
+        print(f"    Energy savings: median = {np.median(rel_en) * 100:.2f}%")
 
         # Wilcoxon signed-rank: is the success rate change significantly != 0?
-        print(f"\n  Wilcoxon Signed-Rank Tests:")
+        print("\n  Wilcoxon Signed-Rank Tests:")
         sr_result = {}
         en_result = {}
 
@@ -405,10 +477,12 @@ def test_relative_change(df):
                 w_sr, p_sr = stats.wilcoxon(delta_sr.values, alternative="two-sided")
                 z_sr = stats.norm.ppf(1 - p_sr / 2)
                 r_sr = z_sr / np.sqrt(n)
-                print(f"    Success rate Δ ≠ 0:  W={w_sr:.1f}, p={p_sr:.6f}, r={r_sr:.4f}")
+                print(
+                    f"    Success rate Δ ≠ 0:  W={w_sr:.1f}, p={p_sr:.6f}, r={r_sr:.4f}"
+                )
                 sr_result = {"W": w_sr, "p": p_sr, "r": r_sr}
             else:
-                print(f"    Success rate: all differences are zero")
+                print("    Success rate: all differences are zero")
                 sr_result = {"note": "all zero"}
         except Exception as e:
             print(f"    Success rate: {e}")
@@ -418,27 +492,45 @@ def test_relative_change(df):
                 w_en, p_en = stats.wilcoxon(delta_en.values, alternative="two-sided")
                 z_en = stats.norm.ppf(1 - p_en / 2)
                 r_en = z_en / np.sqrt(n)
-                print(f"    Energy savings Δ ≠ 0: W={w_en:.1f}, p={p_en:.6f}, r={r_en:.4f}")
+                print(
+                    f"    Energy savings Δ ≠ 0: W={w_en:.1f}, p={p_en:.6f}, r={r_en:.4f}"
+                )
                 en_result = {"W": w_en, "p": p_en, "r": r_en}
             else:
-                print(f"    Energy: all differences are zero")
+                print("    Energy: all differences are zero")
                 en_result = {"note": "all zero"}
         except Exception as e:
             print(f"    Energy: {e}")
 
         # Quadrant analysis
-        print(f"\n  Quadrant Analysis (Performance × Energy):")
-        n_win_win = np.sum((delta_sr >= 0) & (delta_en >= 0))  # better perf + less energy
-        n_lose_win = np.sum((delta_sr < 0) & (delta_en >= 0))  # worse perf + less energy
-        n_win_lose = np.sum((delta_sr >= 0) & (delta_en < 0))  # better perf + more energy
-        n_lose_lose = np.sum((delta_sr < 0) & (delta_en < 0))  # worse perf + more energy
-        print(f"    Win-Win  (↑perf, ↓energy): {n_win_win:>3} ({n_win_win/n*100:.1f}%)")
-        print(f"    Trade-off(↓perf, ↓energy): {n_lose_win:>3} ({n_lose_win/n*100:.1f}%)")
-        print(f"    Inverse  (↑perf, ↑energy): {n_win_lose:>3} ({n_win_lose/n*100:.1f}%)")
-        print(f"    Lose-Lose(↓perf, ↑energy): {n_lose_lose:>3} ({n_lose_lose/n*100:.1f}%)")
+        print("\n  Quadrant Analysis (Performance × Energy):")
+        n_win_win = np.sum(
+            (delta_sr >= 0) & (delta_en >= 0)
+        )  # no perf loss + energy saving
+        n_lose_win = np.sum(
+            (delta_sr < 0) & (delta_en >= 0)
+        )  # worse perf + less energy
+        n_win_lose = np.sum(
+            (delta_sr >= 0) & (delta_en < 0)
+        )  # no perf loss + more energy
+        n_lose_lose = np.sum(
+            (delta_sr < 0) & (delta_en < 0)
+        )  # worse perf + more energy
+        print(
+            f"    Win-Win  (↑perf, ↓energy): {n_win_win:>3} ({n_win_win / n * 100:.1f}%)"
+        )
+        print(
+            f"    Trade-off(↓perf, ↓energy): {n_lose_win:>3} ({n_lose_win / n * 100:.1f}%)"
+        )
+        print(
+            f"    Inverse  (↑perf, ↑energy): {n_win_lose:>3} ({n_win_lose / n * 100:.1f}%)"
+        )
+        print(
+            f"    Lose-Lose(↓perf, ↑energy): {n_lose_lose:>3} ({n_lose_lose / n * 100:.1f}%)"
+        )
 
         # Per-configuration breakdown
-        print(f"\n  Per-configuration details:")
+        print("\n  Per-configuration details:")
         configs = valid_idx.to_frame(index=False)
         configs["delta_success"] = delta_sr.values
         configs["delta_energy"] = delta_en.values
@@ -462,7 +554,7 @@ def test_relative_change(df):
                 "trade_off": int(n_lose_win),
                 "inverse": int(n_win_lose),
                 "lose_lose": int(n_lose_lose),
-            }
+            },
         }
 
     return results

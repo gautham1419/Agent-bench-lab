@@ -149,9 +149,7 @@ def mcnemar_cell(merged: pd.DataFrame) -> dict:
     n_disc = n01 + n10
     flip_rate = n_disc / n if n else np.nan
     # exact McNemar: binomial test of n01 against Binomial(n_disc, 0.5)
-    p_mcnemar = (
-        float(stats.binomtest(n01, n_disc, 0.5).pvalue) if n_disc > 0 else 1.0
-    )
+    p_mcnemar = float(stats.binomtest(n01, n_disc, 0.5).pvalue) if n_disc > 0 else 1.0
     return {
         "n_pairs": n,
         "n_both_success": n11,
@@ -220,9 +218,7 @@ def run_turns_analysis(df: pd.DataFrame) -> dict:
 
     # cell-level mean turns
     cell = (
-        df.groupby(["model", "size", "domain", "quant"])["n_turns"]
-        .mean()
-        .reset_index()
+        df.groupby(["model", "size", "domain", "quant"])["n_turns"].mean().reset_index()
     )
     wide = cell.pivot_table(
         index=["model", "size", "domain"], columns="quant", values="n_turns"
@@ -230,7 +226,7 @@ def run_turns_analysis(df: pd.DataFrame) -> dict:
 
     for test_q, ref_q in COMPARISONS:
         diff = (wide[test_q] - wide[ref_q]).values
-        w, p = stats.wilcoxon(diff)
+        w, p = stats.wilcoxon(diff, alternative="two-sided")
         r = abs(stats.norm.ppf(p / 2)) / np.sqrt(len(diff)) if p > 0 else np.nan
         out["cell_tests"][f"{test_q} vs {ref_q}"] = {
             "n_cells": int(len(diff)),
@@ -246,8 +242,12 @@ def run_turns_analysis(df: pd.DataFrame) -> dict:
     for q in ["bf16", "q8_0", "q4_k_m"]:
         sub = df[df["quant"] == q]
         out["turns_by_outcome"][q] = {
-            "success_mean_turns": round(float(sub[sub.success == 1]["n_turns"].mean()), 3),
-            "failure_mean_turns": round(float(sub[sub.success == 0]["n_turns"].mean()), 3),
+            "success_mean_turns": round(
+                float(sub[sub.success == 1]["n_turns"].mean()), 3
+            ),
+            "failure_mean_turns": round(
+                float(sub[sub.success == 0]["n_turns"].mean()), 3
+            ),
         }
     return out, wide
 
@@ -264,8 +264,16 @@ def plot_results(cell_df: pd.DataFrame, pooled: dict, wide: pd.DataFrame):
     x = np.arange(len(comps))
     reg = [pooled[c]["n_regression"] / pooled[c]["n_pairs"] * 100 for c in comps]
     imp = [pooled[c]["n_improvement"] / pooled[c]["n_pairs"] * 100 for c in comps]
-    ax.bar(x - 0.18, reg, width=0.36, label="Regressions (ref ✓ → test ✗)", color="#c44e52")
-    ax.bar(x + 0.18, imp, width=0.36, label="Improvements (ref ✗ → test ✓)", color="#55a868")
+    ax.bar(
+        x - 0.18, reg, width=0.36, label="Regressions (ref ✓ → test ✗)", color="#c44e52"
+    )
+    ax.bar(
+        x + 0.18,
+        imp,
+        width=0.36,
+        label="Improvements (ref ✗ → test ✓)",
+        color="#55a868",
+    )
     ax.set_xticks(x)
     ax.set_xticklabels([c.upper() for c in comps], fontsize=9)
     ax.set_ylabel("% of paired tasks", fontsize=9)
@@ -280,7 +288,11 @@ def plot_results(cell_df: pd.DataFrame, pooled: dict, wide: pd.DataFrame):
     data = [sub[sub["domain"] == d]["flip_rate"] * 100 for d in domains]
     ax.boxplot(data, tick_labels=[d.upper() for d in domains])
     ax.set_ylabel("Flip rate (% of paired tasks)", fontsize=9)
-    ax.set_title("Q4_K_M vs BF16 flip rate by domain\n(one point per model)", fontsize=10, fontweight="bold")
+    ax.set_title(
+        "Q4_K_M vs BF16 flip rate by domain\n(one point per model)",
+        fontsize=10,
+        fontweight="bold",
+    )
     ax.grid(axis="y", alpha=0.3)
 
     fig.tight_layout()
@@ -314,14 +326,18 @@ def run_behavioral_consistency():
         )
     print("\n    Per-cell flip rates (q4_k_m vs bf16):")
     sub = cell_df[cell_df["comparison"] == "q4_k_m vs bf16"]
-    print(f"      mean={sub['flip_rate'].mean() * 100:.2f}%  "
-          f"min={sub['flip_rate'].min() * 100:.2f}%  "
-          f"max={sub['flip_rate'].max() * 100:.2f}%")
+    print(
+        f"      mean={sub['flip_rate'].mean() * 100:.2f}%  "
+        f"min={sub['flip_rate'].min() * 100:.2f}%  "
+        f"max={sub['flip_rate'].max() * 100:.2f}%"
+    )
 
     print("\n  [2] Interaction turns")
     turns, wide = run_turns_analysis(df)
     for q, v in turns["pooled_mean_turns"].items():
-        print(f"    {q:8s}: mean={v['mean']:.2f}  median={v['median']:.0f}  n={v['n_tasks']:,}")
+        print(
+            f"    {q:8s}: mean={v['mean']:.2f}  median={v['median']:.0f}  n={v['n_tasks']:,}"
+        )
     for comp, v in turns["cell_tests"].items():
         print(
             f"    {comp}: median diff={v['median_diff_turns']:+.2f} turns/cell  "
@@ -329,7 +345,9 @@ def run_behavioral_consistency():
         )
     print("    Turns by outcome:")
     for q, v in turns["turns_by_outcome"].items():
-        print(f"      {q:8s}: success={v['success_mean_turns']:.2f}  failure={v['failure_mean_turns']:.2f}")
+        print(
+            f"      {q:8s}: success={v['success_mean_turns']:.2f}  failure={v['failure_mean_turns']:.2f}"
+        )
 
     # save
     cell_df.to_csv(OUTPUT_DIR / "flip_rates_table.csv", index=False)
